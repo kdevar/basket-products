@@ -33,7 +33,6 @@ Geocode.enableDebug();
 const geoCode = (val) => {
     return Geocode.fromAddress(val).then(
         response => {
-            console.log(response);
             const { lat, lng } = response.results[0].geometry.location;
             return {lat, lng}
         },

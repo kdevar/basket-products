@@ -31,39 +31,47 @@ function render(min,max){
     return `${min}-${max}`;
 }
 
+function renderUserPrices(props){
+    const { classes } = props;
+    if(!props.data || props.data.length === 0){
+        return (<div><Typography variant={"caption"}>No User or Cluster Prices available</Typography><Divider/></div>);
+    }
+    return (
+    <Table className={classes.table}>
+        <TableHead>
+            <TableRow>
+                <TableCell >Store Name</TableCell>
+                <TableCell numeric>List Price</TableCell>
+                <TableCell numeric>Sale Price</TableCell>
+                <TableCell numeric>Final Price</TableCell>
+            </TableRow>
+        </TableHead>
+        <TableBody>
+            {props.data && props.data.map(price => (
+                <TableRow>
+                    <TableCell >{price.fullStoreName}</TableCell>
+
+                    <TableCell numeric>{price.listPrice}</TableCell>
+                    <TableCell numeric>{price.salePrice}</TableCell>
+                    <TableCell numeric>{price.finalPrice}</TableCell>
+                </TableRow>
+            ))}
+        </TableBody>
+    </Table>);
+}
+
 function SimpleTable(props) {
     const { classes } = props;
 
     return (
         <div className={classes.root}>
-            <Typography variant={"title"}>User or Cluster based Price</Typography>
+            <Typography variant={"subheading"}>User or Cluster based Price</Typography>
 
-            <Table className={classes.table}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell >Store Name</TableCell>
-                        <TableCell numeric>List Price</TableCell>
-                        <TableCell numeric>Sale Price</TableCell>
-                        <TableCell numeric>Final Price</TableCell>
-            </TableRow>
-                </TableHead>
-                <TableBody>
-                    {props.data && props.data.map(price => (
-                        <TableRow>
-                            <TableCell >{price.fullStoreName}</TableCell>
-
-                            <TableCell numeric>{price.listPrice}</TableCell>
-                            <TableCell numeric>{price.salePrice}</TableCell>
-                            <TableCell numeric>{price.finalPrice}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            {renderUserPrices(props)}
 
             <br/>
-            <br/>
-            <Divider/>
-            <Typography variant={"title"}>Estimated Prices</Typography>
+
+            <Typography variant={"subheading"}>Estimated Prices</Typography>
 
             <Table className={classes.table}>
                 <TableHead>

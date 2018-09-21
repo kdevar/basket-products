@@ -141,8 +141,10 @@ const ExpansionDetails = props => {
     let estimatedData = [];
     if(props.estimateDetails){
          estimatedData = Object.keys(props.estimateDetails).map(chainId => {
-            const store = stores && stores.find(s => s.ChainID == chainId);
-            if(store){
+
+            const store = stores &&!storeExists && stores.find(s => s.ChainID == chainId);
+            const storeExists = store && props.data && props.data.find(s => s.storeId === store.StoreID)
+            if(store && !storeExists){
                 return {
                     ...store,
                     ...props.estimateDetails[chainId]
@@ -151,7 +153,6 @@ const ExpansionDetails = props => {
             return null;
 
         }).filter(n => n);
-        console.log(estimatedData)
     }
 
     return (<ExpansionPanelDetails className={classes.details}>

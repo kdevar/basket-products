@@ -158,8 +158,8 @@ const getStoresAsUrlParams = (stores) => {
 class Dashboard extends React.Component {
     state = {
         open: false,
-        latitude: "",
-        longitude: "",
+        latitude: "38.8876531",
+        longitude: "-77.0954574",
         response:[],
         location: [],
         loadingLocation: true,
@@ -172,18 +172,11 @@ class Dashboard extends React.Component {
     };
 
     onSearchCompleted(suggestion){
-        console.log(suggestion);
         return this.fetchItems(suggestion);
     }
 
     componentDidMount(){
-        navigator.geolocation.getCurrentPosition((position) => {
-                this.setState({
-                    latitude:position.coords.latitude,
-                    longitude:position.coords.longitude
-                });
-                this.fetchLocationDetails();
-            },(error_message) => console.error('An error has occured while retrievinglocation', error_message))
+        this.fetchLocationDetails();
     }
 
     fetchLocationDetails(loc){
@@ -222,7 +215,7 @@ class Dashboard extends React.Component {
                 "longitude": this.state.longitude
             },
         }).then(response => {
-            console.log(response);
+
         })
     }
     getProductEstimateData(productRow){
@@ -232,7 +225,7 @@ class Dashboard extends React.Component {
                 "longitude": this.state.longitude
             },
         }).then(response => {
-            console.log(response);
+
         })
     }
 
