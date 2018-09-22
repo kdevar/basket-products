@@ -172,6 +172,7 @@ class Dashboard extends React.Component {
     };
 
     onSearchCompleted(suggestion){
+        this.setState({response: []});
         return this.fetchItems(suggestion);
     }
 
@@ -195,11 +196,21 @@ class Dashboard extends React.Component {
         }).
         then(response => response.json()).then(response => {
             this.setState({location:response, loadingLocation:false})
+            return this.fetchItems();
         })
     }
 
-    fetchItems(suggestion){
-        return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId="+suggestion.id : ""}${suggestion.type !== "Type" ? "&brandId="+suggestion.id : ""}&category=${suggestion.category}`, {
+    fetchItems(s){
+        if(s){
+            this.setState({suggestion:s})
+        }
+        const suggestion = s || this.state.suggestion;
+
+        if(!suggestion || !suggestion.name){
+            return;
+        }
+
+        return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId="+suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId="+suggestion.id : ""}&category=${suggestion.category || ""}`, {
             headers: {
                 "latitude": this.state.latitude,
                 "longitude": this.state.longitude

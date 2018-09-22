@@ -60,49 +60,55 @@ function renderUserPrices(props){
     </Table>);
 }
 
+function renderEstimatedPrice(props){
+    const { classes } = props;
+    if(!props.estimatedData || props.estimatedData.length === 0){
+        return (<div><Typography variant={"caption"}>Unable to estimate</Typography><Divider/></div>);
+    }
+    return (
+
+        <Table className={classes.table}>
+            <TableHead>
+                <TableRow>
+                    <TableCell >Store Name</TableCell>
+
+                    <TableCell numeric>City Est</TableCell>
+                    <TableCell numeric>Metro Est</TableCell>
+                    <TableCell numeric>Zip Est</TableCell>
+                    <TableCell numeric>0-50mi Est</TableCell>
+                    <TableCell numeric>50-100mi Est</TableCell>
+                    <TableCell numeric>100-4000mi Est</TableCell>
+                </TableRow>
+            </TableHead>
+            <TableBody>
+                {props.estimatedData && props.estimatedData.map(price => (
+                    <TableRow>
+                        <TableCell >{price.FullStoreName}</TableCell>
+                        <TableCell numeric>{render(price.CITY.Min,price.CITY.Max)}</TableCell>
+                        <TableCell numeric>{render(price.METRO.Min,price.METRO.Max)}</TableCell>
+                        <TableCell numeric>{render(price.ZIP.Min,price.ZIP.Max)}</TableCell>
+                        <TableCell numeric>{render(price.FIFTYMILE.Min,price.FIFTYMILE.Max)}</TableCell>
+                        <TableCell numeric>{render(price.HUNDREDMILES.Min,price.HUNDREDMILES.Max)}</TableCell>
+                        <TableCell numeric>{render(price.NATIONALMILES.Min,price.NATIONALMILES.Max)}</TableCell>
+
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    )
+}
+
 function SimpleTable(props) {
     const { classes } = props;
 
     return (
         <div className={classes.root}>
-            <Typography variant={"subheading"}>User or Cluster based Price</Typography>
-
+            <Typography variant={"subheading"}>User/Cluster Prices</Typography>
             {renderUserPrices(props)}
 
             <br/>
-
             <Typography variant={"subheading"}>Estimated Prices</Typography>
-
-            <Table className={classes.table}>
-                <TableHead>
-                    <TableRow>
-                        <TableCell >Store Name</TableCell>
-
-                        <TableCell numeric>City Est</TableCell>
-                        <TableCell numeric>Metro Est</TableCell>
-                        <TableCell numeric>Zip Est</TableCell>
-                        <TableCell numeric>0-50mi Est</TableCell>
-                        <TableCell numeric>50-100mi Est</TableCell>
-                        <TableCell numeric>100-4000mi Est</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {props.estimatedData && props.estimatedData.map(price => (
-                        <TableRow>
-                            <TableCell >{price.FullStoreName}</TableCell>
-                            <TableCell numeric>{render(price.CITY.Min,price.CITY.Max)}</TableCell>
-                            <TableCell numeric>{render(price.METRO.Min,price.METRO.Max)}</TableCell>
-                            <TableCell numeric>{render(price.ZIP.Min,price.ZIP.Max)}</TableCell>
-                            <TableCell numeric>{render(price.FIFTYMILE.Min,price.FIFTYMILE.Max)}</TableCell>
-                            <TableCell numeric>{render(price.HUNDREDMILES.Min,price.HUNDREDMILES.Max)}</TableCell>
-                            <TableCell numeric>{render(price.NATIONALMILES.Min,price.NATIONALMILES.Max)}</TableCell>
-
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-
-
+            {renderEstimatedPrice(props)}
         </div>
     );
 }

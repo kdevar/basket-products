@@ -16,45 +16,6 @@ import { emphasize } from '@material-ui/core/styles/colorManipulator';
 import AsyncSelect from 'react-select/lib/Async';
 import {debounce} from 'lodash';
 
-const suggestions = [
-    { label: 'Afghanistan' },
-    { label: 'Aland Islands' },
-    { label: 'Albania' },
-    { label: 'Algeria' },
-    { label: 'American Samoa' },
-    { label: 'Andorra' },
-    { label: 'Angola' },
-    { label: 'Anguilla' },
-    { label: 'Antarctica' },
-    { label: 'Antigua and Barbuda' },
-    { label: 'Argentina' },
-    { label: 'Armenia' },
-    { label: 'Aruba' },
-    { label: 'Australia' },
-    { label: 'Austria' },
-    { label: 'Azerbaijan' },
-    { label: 'Bahamas' },
-    { label: 'Bahrain' },
-    { label: 'Bangladesh' },
-    { label: 'Barbados' },
-    { label: 'Belarus' },
-    { label: 'Belgium' },
-    { label: 'Belize' },
-    { label: 'Benin' },
-    { label: 'Bermuda' },
-    { label: 'Bhutan' },
-    { label: 'Bolivia, Plurinational State of' },
-    { label: 'Bonaire, Sint Eustatius and Saba' },
-    { label: 'Bosnia and Herzegovina' },
-    { label: 'Botswana' },
-    { label: 'Bouvet Island' },
-    { label: 'Brazil' },
-    { label: 'British Indian Ocean Territory' },
-    { label: 'Brunei Darussalam' },
-].map(suggestion => ({
-    value: suggestion.label,
-    label: suggestion.label,
-}));
 
 const styles = theme => ({
     root: {
@@ -64,6 +25,7 @@ const styles = theme => ({
     input: {
         display: 'flex',
         padding: 0,
+        color: 'white'
     },
     valueContainer: {
         display: 'flex',
@@ -240,6 +202,7 @@ class IntegrationReactSelect extends React.Component {
         this.props = props;
     }
     state = {
+        currentValue: "",
         single: null,
         multi: null,
     };
@@ -247,6 +210,9 @@ class IntegrationReactSelect extends React.Component {
     handleChange = (selectedOption) => {
         this.setState({ selectedOption });
         this.props.onSelected(selectedOption);
+    }
+    handleFreeformEvent() {
+        this.props.onSelected({name: this.state.currentValue})
     }
 
     render() {
@@ -261,12 +227,23 @@ class IntegrationReactSelect extends React.Component {
 
         return (
             <AsyncSelect classes={classes}
-                         styles={{control:{width:700}}}
+                         styles={{control:{width:700,color:'white'}}}
+                         noOptionsMessage={() => null}
+                         loadingMessage={() => null}
                          components={components}
                          cacheOptions
                          defaultOptions
+                         autoLoad={false}
+                         onInputChange={(currentValue) => this.setState({currentValue})}
+                         noOptionsMessageCSS={() => {display: 'none'}}
+                         onKeyDown={(event) => {
+                            if(event.keyCode === 13){
+                                this.handleFreeformEvent();
+                            }
+                         }}
+                         ref={a => {const reffee = a}}
                          onChange={this.handleChange}
-                         loadOptions={debounce(opt, 250, {leading: false, trailing: true} )} />
+                         loadOptions={debounce(opt, 250, {leading: true, trailing: true} )} />
 
 
         );
