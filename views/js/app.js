@@ -11,14 +11,10 @@ import Products from './products';
 import Grid from '@material-ui/core/Grid';
 import Location from './location'
 
-
-const drawerWidth = 240;
-
 const styles = theme => ({
     root: {
         display: 'flex',
     },
-
     search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
@@ -34,7 +30,6 @@ const styles = theme => ({
             width: 'auto',
         },
     },
-
     searchIcon: {
         width: theme.spacing.unit * 9,
         height: '100%',
@@ -63,13 +58,6 @@ const styles = theme => ({
         paddingLeft: theme.spacing.unit * 10,
         color: 'white'
     },
-    toolbarIcon: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'flex-end',
-        padding: '0 8px',
-        ...theme.mixins.toolbar,
-    },
     appBar: {
         zIndex: theme.zIndex.drawer + 1,
         transition: theme.transitions.create(['width', 'margin'], {
@@ -85,36 +73,6 @@ const styles = theme => ({
             duration: theme.transitions.duration.enteringScreen,
         }),
     },
-    menuButton: {
-        marginLeft: 12,
-        marginRight: 36,
-    },
-    menuButtonHidden: {
-        display: 'none',
-    },
-    title: {
-        flexGrow: 1,
-    },
-    drawerPaper: {
-        position: 'relative',
-        whiteSpace: 'nowrap',
-        width: drawerWidth,
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
-    drawerPaperClose: {
-        overflowX: 'hidden',
-        transition: theme.transitions.create('width', {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.leavingScreen,
-        }),
-        width: theme.spacing.unit * 7,
-        [theme.breakpoints.up('sm')]: {
-            width: theme.spacing.unit * 9,
-        },
-    },
     appBarSpacer: theme.mixins.toolbar,
     content: {
         flexGrow: 1,
@@ -122,13 +80,7 @@ const styles = theme => ({
         paddingTop: theme.spacing.unit * 5,
         height: '100vh',
         overflow: 'auto',
-    },
-    chartContainer: {
-        marginLeft: -22,
-    },
-    tableContainer: {
-        height: 320,
-    },
+    }
 });
 
 const getChainsAsUrlParams = (chains) => {
@@ -188,7 +140,6 @@ class Dashboard extends React.Component {
         if (!suggestion || !suggestion.name) {
             return;
         }
-
         return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId=" + suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId=" + suggestion.id : ""}&category=${suggestion.category || ""}`, {
             headers: {
                 "latitude": this.state.latitude,
@@ -198,36 +149,6 @@ class Dashboard extends React.Component {
             this.setState({response})
         })
     }
-
-    getProductData(productRow) {
-        fetch(`/api/basket-products/${productRow.productId}/prices`, {
-            headers: {
-                "latitude": this.state.latitude,
-                "longitude": this.state.longitude
-            },
-        }).then(response => {
-
-        })
-    }
-
-    getProductEstimateData(productRow) {
-        fetch(`/api/basket-products/${productRow.productId}/?${getChainsAsUrlParams(this.state.location.chains)}&metroAreaId=${this.state.location.metroAreaId}&cityId=${this.state.location.cityId}&zipCodeId=${this.state.location.zipCodeId}`, {
-            headers: {
-                "latitude": this.state.latitude,
-                "longitude": this.state.longitude
-            },
-        }).then(response => {
-
-        })
-    }
-
-    handleDrawerOpen = () => {
-        this.setState({open: true});
-    };
-
-    handleDrawerClose = () => {
-        this.setState({open: false});
-    };
 
     render() {
         const {classes} = this.props;
@@ -265,10 +186,7 @@ class Dashboard extends React.Component {
                     </AppBar>
 
                     <main className={classes.content}>
-
-
                         <div className={classes.appBarSpacer}/>
-
                         <Grid container spacing={24}>
                             <Grid item xs={9}>
                                 <Products getStores={() => this.state.location.stores}
@@ -281,15 +199,11 @@ class Dashboard extends React.Component {
                                           tileData={this.state.response}/>
                             </Grid>
                             <Grid item xs={3}>
-                                <Location loading={this.state.loadingLocation} area={this.state.location}
+                                <Location loading={this.state.loadingLocation}
+                                          area={this.state.location}
                                           onLocationChange={this.fetchLocationDetails.bind(this)}/>
                             </Grid>
                         </Grid>
-
-
-                        <div className={classes.tableContainer}>
-
-                        </div>
                     </main>
                 </div>
             </React.Fragment>

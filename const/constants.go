@@ -1,4 +1,4 @@
-package products
+package _const
 
 type EstimateType string
 
@@ -28,6 +28,8 @@ const (
 )
 
 const (
+	LATITUDEFIELD          string = "latitude"
+	LONGITUDEFIELD         string = "longitude"
 	FINALPRICEFIELD        string = "finalPrice"
 	BUSINESSVALUEFIELD     string = "typeBusinessValue"
 	POPULARITYFIELD        string = "popularity"

@@ -2,15 +2,12 @@ import React from 'react';
 import {withStyles} from '@material-ui/core/styles';
 import Geocode from "react-geocode";
 import Card from '@material-ui/core/Card';
-import CardHeader from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import Typography from '@material-ui/core/Typography';
-import IconButton from '@material-ui/core/IconButton';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
-import MoreVertIcon from '@material-ui/icons/MoreVert';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
@@ -18,27 +15,17 @@ Geocode.setApiKey("AIzaSyByRxUnUyA9RKpU2FOuOtWkESHgf693xdo");
 
 Geocode.enableDebug();
 
-const geoCode = (val) => {
-    return Geocode.fromAddress(val).then(
-        response => {
-            const {lat, lng} = response.results[0].geometry.location;
+const geoCode = val => {
+    return Geocode.fromAddress(val).then(res => {
+            const {lat, lng} = res.results[0].geometry.location;
             return {lat, lng}
-        },
-        error => {
-            console.error(error);
         }
     );
 }
 
-
 const styles = {
     card: {
         minWidth: 275,
-    },
-    bullet: {
-        display: 'inline-block',
-        margin: '0 2px',
-        transform: 'scale(0.8)',
     },
     title: {
         marginBottom: 16,
@@ -59,11 +46,6 @@ class Location extends React.Component {
         this.state = {
             locationText: ''
         }
-
-    }
-
-    componentWillReceiveProps(prevprops, nextprops) {
-
     }
 
     handleLocationChange() {
@@ -78,29 +60,17 @@ class Location extends React.Component {
 
     render() {
         const {classes} = this.props;
-        const bull = <span className={classes.bullet}>•</span>;
-
         if (this.props.loading) {
             return (<CircularProgress className={classes.progress} size={50}/>)
         }
-
         return (
             <Card className={classes.card}>
-                <CardHeader
-                    action={
-                        <IconButton>
-                            <MoreVertIcon/>
-                        </IconButton>
-                    }
-                    title="Shrimp and Chorizo Paella"
-                    subheader="September 14, 2016"
-                />
-
                 <CardContent>
-                    <form onSubmit={(event) => {
+                    <form onSubmit={event => {
                         event.preventDefault();
                         this.handleLocationChange()
-                    }}>
+                    }
+                    }>
                         <TextField
                             id="standard-with-placeholder"
                             label="Switch to different location"
@@ -108,8 +78,7 @@ class Location extends React.Component {
                             placeholder="Switch to different location"
                             className={classes.textField}
                             margin="normal"
-                            onChange={this.handleLocationTextChange.bind(this)}
-                        />
+                            onChange={this.handleLocationTextChange.bind(this)}/>
                     </form>
                     <Typography className={classes.title} color="textSecondary">
                         Searching relative to
@@ -140,16 +109,15 @@ class Location extends React.Component {
                         {this.props.area.stores && this.props.area.stores.map(store => (
                             <div>
                                 <ListItem disableGutters={true}>
-                                    <ListItemText primary={store.FullStoreName} secondary={store.ChainDesc}/>
+                                    <ListItemText
+                                        primary={store.FullStoreName}
+                                        secondary={store.ChainDesc}/>
                                 </ListItem>
                                 <Divider/>
                             </div>
-
                         ))}
                     </List>
-
                 </CardContent>
-
             </Card>
         );
     }

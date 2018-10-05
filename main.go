@@ -16,7 +16,7 @@ func main() {
 	productsService := products.NewProductService(elasticClient)
 	productController := products.NewProductController(productsService)
 	typeaheadController := &typeahead.TypeaheadController{}
-	storeService := stores.NewStoreServie(elasticClient)
+	storeService := stores.NewStoreService(elasticClient)
 	areaService := area.NewAreaService(cfg, storeService)
 	areaController := area.NewAreaController(areaService)
 

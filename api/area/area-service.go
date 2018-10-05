@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/api/stores"
 	"github.com/kdevar/basket-products/config"
 	"github.com/olivere/elastic"
@@ -26,7 +26,7 @@ func (svc *areaServiceImpl) GetAreaInformation(point elastic.GeoPoint) (Area, *e
 	jsonValue, _ := json.Marshal(jsonData)
 	response, err := http.Post(svc.Config.BasketBaseApiPath+svc.Config.AreaContextPath, "application/json", bytes.NewBuffer(jsonValue))
 
-	s, _ := svc.storeService.GetStoresForLocation(point)
+	s, _ := svc.storeService.GetStoresForLocation(&point)
 	chains := make(map[string]stores.Chain)
 	for _, store := range s {
 		chains[strconv.Itoa(store.ChainID)] = store.Chain

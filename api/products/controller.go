@@ -2,7 +2,7 @@ package products
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"net/http"
 )
 

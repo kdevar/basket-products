@@ -2,7 +2,7 @@ package area
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/olivere/elastic"
 	"net/http"
 	"strconv"

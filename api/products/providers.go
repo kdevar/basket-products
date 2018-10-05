@@ -1,7 +1,7 @@
 package products
 
 import (
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/olivere/elastic"
 )
 

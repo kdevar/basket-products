@@ -19,43 +19,27 @@ const styles = theme => ({
         fontSize: theme.typography.pxToRem(15),
         color: theme.palette.text.secondary,
     },
-    icon: {
-        verticalAlign: 'bottom',
-        height: 20,
-        width: 20,
-    },
     details: {
         alignItems: 'center',
     },
     column: {
         flexBasis: '25%',
-    },
-    helper: {
-        borderLeft: `2px solid ${theme.palette.divider}`,
-        padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
-    },
-    link: {
-        color: theme.palette.primary.main,
-        textDecoration: 'none',
-        '&:hover': {
-            textDecoration: 'underline',
-        },
-    },
+    }
 });
 
 const Products = props => {
     const {classes} = props;
     return (
         <div className={classes.root}>
-            {props.tileData &&
-            props.tileData.map(tile => <StyledExpansionRow
+            {props.tileData && props.tileData.map(tile => <StyledExpansionRow
                 getStores={props.getStores}
                 getStoresQuery={props.getStoresQuery}
                 getChainsQuery={props.getChainsQuery}
                 getLatitude={props.getLatitude}
                 getLongitude={props.getLongitude}
                 getLocationData={props.getLocationData}
-                getProductData={props.getProductData} row={tile}/>)}
+                row={tile}/>)
+            }
         </div>
     )
 }
@@ -81,7 +65,6 @@ class ExpansionRow extends React.Component {
 
     getProductEstimateData(productRow) {
         const location = this.props.getLocationData();
-
         return fetch(`/api/basket-products/${productRow.productId}/estimated-prices?${this.props.getChainsQuery()}&cityId=${location.cityId}&zipCodeId=${location.postalCodeId}&metroAreaId=${location.metroAreaId}`, {
             headers: {
                 "latitude": this.props.getLatitude(),
@@ -92,8 +75,10 @@ class ExpansionRow extends React.Component {
 
     onChange(event, expanded) {
         if (expanded) {
-            this.getProductData(this.props.row).then(details => this.setState({details}))
-            this.getProductEstimateData(this.props.row).then(estimateDetails => this.setState({estimateDetails}))
+            this.getProductData(this.props.row)
+                .then(details => this.setState({details}))
+            this.getProductEstimateData(this.props.row)
+                .then(estimateDetails => this.setState({estimateDetails}))
         }
     }
 

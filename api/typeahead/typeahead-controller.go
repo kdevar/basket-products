@@ -3,7 +3,7 @@ package typeahead
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"io/ioutil"
 	"net/http"
 )

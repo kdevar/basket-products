@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"strconv"
+	"github.com/kdevar/basket-products/util"
 )
 
 type EstimatedPriceFilter struct {
@@ -13,12 +14,10 @@ type EstimatedPriceFilter struct {
 	CityId          string
 	ZipCodeId       string
 	Location        *elastic.GeoPoint
-	IncludeEstimate bool
-	IncludeDetails  bool
 }
 
 func (filter *EstimatedPriceFilter) GetLatLongString() string {
-	return strconv.FormatFloat(filter.Location.Lat, 'f', 6, 64) + "," + strconv.FormatFloat(filter.Location.Lon, 'f', 6, 64)
+	return util.ConvertPointToString(filter.Location)
 }
 
 func (filter *EstimatedPriceFilter) Transform(c *gin.Context) {

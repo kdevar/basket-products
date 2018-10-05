@@ -4,7 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/const"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
 )
@@ -16,11 +17,11 @@ type productServiceImpl struct {
 func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFilter) (EstimatedPriceResponse, *errors.ApiError) {
 	ctx := context.Background()
 	queries := []elastic.Query{}
-	productIdTermQuery := elastic.NewTermQuery(PRODUCTIDFIELD, filter.ProductId)
+	productIdTermQuery := elastic.NewTermQuery(_const.PRODUCTIDFIELD, filter.ProductId)
 	queries = append(queries, productIdTermQuery)
 
-	priceStatusFilter := elastic.NewTermsQuery(PRICESTATUSFIELD, "0")
-	productStatusFilter := elastic.NewTermsQuery(PRODUCTSTATUSFIELD, "0")
+	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
+	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
 
 	queries = append(queries, priceStatusFilter, productStatusFilter)
 
@@ -32,38 +33,38 @@ func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFi
 
 	gq := elastic.NewBoolQuery().Filter(queries...)
 
-	baseAggregation := elastic.NewTermsAggregation().Field(CHAINIDFIELD)
+	baseAggregation := elastic.NewTermsAggregation().Field(_const.CHAINIDFIELD)
 
-	ma := NewEstimateTermsAgg(METROAREAIDFIELD, filter.MetroAreaId).Generate()
+	ma := NewEstimateTermsAgg(_const.METROAREAIDFIELD, filter.MetroAreaId).Generate()
 
-	c := NewEstimateTermsAgg(CITYIDFIELD, filter.CityId).Generate()
+	c := NewEstimateTermsAgg(_const.CITYIDFIELD, filter.CityId).Generate()
 
-	z := NewEstimateTermsAgg(ZIPIDFIELD, filter.ZipCodeId).Generate()
+	z := NewEstimateTermsAgg(_const.ZIPIDFIELD, filter.ZipCodeId).Generate()
 
 	a := elastic.
 		NewGeoDistanceAggregation().
-		Field(LOCATIONFIELD).
+		Field(_const.LOCATIONFIELD).
 		Point(filter.GetLatLongString()).
 		Unit("miles").
-		AddRangeWithKey(string(CITY), 0, 50).
-		AddRangeWithKey(string(METRO), 51, 100).
-		AddRangeWithKey(string(NATIONALMILES), 101, 4000)
+		AddRangeWithKey(string(_const.CITY), 0, 50).
+		AddRangeWithKey(string(_const.METRO), 51, 100).
+		AddRangeWithKey(string(_const.NATIONALMILES), 101, 4000)
 
-	s := elastic.NewMinAggregation().Field(FINALPRICEFIELD)
-	m := elastic.NewMaxAggregation().Field(FINALPRICEFIELD)
+	s := elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)
+	m := elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)
 
-	a.SubAggregation(MINLABEL, s)
-	a.SubAggregation(MAXLABEL, m)
+	a.SubAggregation(_const.MINLABEL, s)
+	a.SubAggregation(_const.MAXLABEL, m)
 
-	baseAggregation.SubAggregation(GEOGRAPHICLABEL, a)
-	baseAggregation.SubAggregation(METROLABEL, ma)
-	baseAggregation.SubAggregation(CITYLABEL, c)
-	baseAggregation.SubAggregation(ZIPLABEL, z)
+	baseAggregation.SubAggregation(_const.GEOGRAPHICLABEL, a)
+	baseAggregation.SubAggregation(_const.METROLABEL, ma)
+	baseAggregation.SubAggregation(_const.CITYLABEL, c)
+	baseAggregation.SubAggregation(_const.ZIPLABEL, z)
 
 	searchQuery := svc.elasticClient.
-		Search(PROUCTPRICEINDEX).
+		Search(_const.PROUCTPRICEINDEX).
 		Query(gq).
-		Aggregation(CHAINLABEL, baseAggregation)
+		Aggregation(_const.CHAINLABEL, baseAggregation)
 
 	searchResult, err := searchQuery.Do(ctx)
 
@@ -71,55 +72,55 @@ func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFi
 		errors.ServerError(err)
 	}
 
-	groups, _ := searchResult.Aggregations.Terms(CHAINLABEL)
+	groups, _ := searchResult.Aggregations.Terms(_const.CHAINLABEL)
 	responses := make(EstimatedPriceResponse)
 	for _, b := range groups.Buckets {
 		chainId := ChainId(b.KeyNumber)
 		estimates := make(EstimatedPriceItem)
 
 		cityEstimate := &ProductEstimate{
-			Etype: CITY,
+			Etype: _const.CITY,
 		}
-		cityBucket, _ := b.Aggregations.Terms(CITYLABEL)
+		cityBucket, _ := b.Aggregations.Terms(_const.CITYLABEL)
 		cityEstimate.transformFromTermsBucket(cityBucket)
 
-		estimates[CITY] = cityEstimate
+		estimates[_const.CITY] = cityEstimate
 
 		metroEstimate := &ProductEstimate{
-			Etype: METRO,
+			Etype: _const.METRO,
 		}
-		metroBucket, _ := b.Aggregations.Terms(METROLABEL)
+		metroBucket, _ := b.Aggregations.Terms(_const.METROLABEL)
 		metroEstimate.transformFromTermsBucket(metroBucket)
 
-		estimates[METRO] = metroEstimate
+		estimates[_const.METRO] = metroEstimate
 
 		zipEstimate := &ProductEstimate{
 			Etype: "ZIP",
 		}
-		zipBucket, _ := b.Aggregations.Terms(ZIPLABEL)
+		zipBucket, _ := b.Aggregations.Terms(_const.ZIPLABEL)
 		zipEstimate.transformFromTermsBucket(zipBucket)
 
-		estimates[ZIP] = zipEstimate
+		estimates[_const.ZIP] = zipEstimate
 
-		x, _ := b.Aggregations.GeoDistance(GEOGRAPHICLABEL)
+		x, _ := b.Aggregations.GeoDistance(_const.GEOGRAPHICLABEL)
 
 		for _, k := range x.Buckets {
-			max, _ := k.Aggregations.Max(MAXLABEL)
-			min, _ := k.Aggregations.Min(MINLABEL)
-			if k.Key == string(CITY) {
-				estimates[FITYMILES] = &ProductEstimate{
-					Etype: FITYMILES,
+			max, _ := k.Aggregations.Max(_const.MAXLABEL)
+			min, _ := k.Aggregations.Min(_const.MINLABEL)
+			if k.Key == string(_const.CITY) {
+				estimates[_const.FITYMILES] = &ProductEstimate{
+					Etype: _const.FITYMILES,
 					Min:   min.Value,
 					Max:   max.Value}
 			}
-			if k.Key == string(METRO) {
-				estimates[HUNDREDMILES] = &ProductEstimate{
-					Etype: HUNDREDMILES,
+			if k.Key == string(_const.METRO) {
+				estimates[_const.HUNDREDMILES] = &ProductEstimate{
+					Etype: _const.HUNDREDMILES,
 					Min:   min.Value, Max: max.Value}
 			}
-			if k.Key == string(NATIONALMILES) {
-				estimates[NATIONALMILES] = &ProductEstimate{
-					Etype: NATIONALMILES,
+			if k.Key == string(_const.NATIONALMILES) {
+				estimates[_const.NATIONALMILES] = &ProductEstimate{
+					Etype: _const.NATIONALMILES,
 					Min:   min.Value,
 					Max:   max.Value}
 			}
@@ -136,8 +137,8 @@ func (svc *productServiceImpl) SearchProducts(filter SearchFilter) ([]Product, *
 	filters := []elastic.Query{}
 	fq := elastic.NewFunctionScoreQuery()
 
-	priceStatusFilter := elastic.NewTermsQuery(PRICESTATUSFIELD, "0")
-	productStatusFilter := elastic.NewTermsQuery(PRODUCTSTATUSFIELD, "0")
+	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
+	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
 
 	keywordMultiMatch := elastic.NewMultiMatchQuery(
 		filter.keyword,
@@ -151,95 +152,95 @@ func (svc *productServiceImpl) SearchProducts(filter SearchFilter) ([]Product, *
 	filters = append(filters, priceStatusFilter)
 
 	if filter.location != nil {
-		geoLocationFilter := elastic.NewGeoDistanceQuery(LOCATIONFIELD).GeoPoint(filter.location).Distance("25mi")
+		geoLocationFilter := elastic.NewGeoDistanceQuery(_const.LOCATIONFIELD).GeoPoint(filter.location).Distance("25mi")
 		filters = append(filters, geoLocationFilter)
 	}
 
 	if filter.productIds != nil {
 		s := util.ConvertIToInterface(filter.productIds)
-		productIdFilter := elastic.NewTermsQuery(PRODUCTIDFIELD, s...)
+		productIdFilter := elastic.NewTermsQuery(_const.PRODUCTIDFIELD, s...)
 		filters = append(filters, productIdFilter)
 	}
 
 	if filter.categoryId != nil {
-		categoryIdFilter := elastic.NewTermsQuery(CATEGORYIDFIELD, *filter.categoryId)
+		categoryIdFilter := elastic.NewTermsQuery(_const.CATEGORYIDFIELD, *filter.categoryId)
 		filters = append(filters, categoryIdFilter)
 	}
 
 	if filter.brandId != nil {
-		brandIdFilter := elastic.NewTermsQuery(BRANDIDFIELD, *filter.brandId)
+		brandIdFilter := elastic.NewTermsQuery(_const.BRANDIDFIELD, *filter.brandId)
 		filters = append(filters, brandIdFilter)
 	}
 
 	if filter.typeId != nil {
-		typeIdFilter := elastic.NewTermsQuery(TYPEIDFIELD, *filter.typeId)
+		typeIdFilter := elastic.NewTermsQuery(_const.TYPEIDFIELD, *filter.typeId)
 		filters = append(filters, typeIdFilter)
 	}
 
 	businessValueScore := elastic.
 		NewFieldValueFactorFunction().
-		Field(BUSINESSVALUEFIELD).
+		Field(_const.BUSINESSVALUEFIELD).
 		Missing(1.0)
 	popularityScore := elastic.
 		NewFieldValueFactorFunction().
-		Field(POPULARITYFIELD).
+		Field(_const.POPULARITYFIELD).
 		Factor(0.001).
 		Missing(1.0)
 	totalPricesScore := elastic.
 		NewFieldValueFactorFunction().
-		Field(TOTALPRICESCOREFIELD).
+		Field(_const.TOTALPRICESCOREFIELD).
 		Factor(0.0001).
 		Missing(1.0)
 
 	bq := elastic.NewBoolQuery().Should(keywordMultiMatch).Filter(filters...)
 
 	docValueFields := []string{
-		PRODUCTIDFIELD,
-		STOREIDFIELD,
-		LISTPRICEPERONEFIELD,
-		LISTPRICEFIELD,
-		LISTQUANTITYFIELD,
-		LISTPRICEUSERIDFIELD,
-		SALEPRICEPERONEFIELD,
-		SALEPRICETYPEID,
-		SALEVALUE1FIELD,
-		SALEVALUE2FIELD,
-		SALEVALUE3FIELD,
-		SALEPRICEUSERIDFIELD,
-		SALEENDDATEFIELD,
-		COUPONPRICEPERONEFIELD,
-		COUPONPRICETYPEIDFIELD,
-		COUPONVALUE1FIELD,
-		COUPONVALUE2FIELD,
-		COUPONVALUE3FIELD,
-		COUPONURIFIELD,
-		COUPONENDDATEFIELD,
-		UNITPRICEPERONEFIELD,
-		UNIDESCFIELD,
-		FINALPRICEFIELD,
+		_const.PRODUCTIDFIELD,
+		_const.STOREIDFIELD,
+		_const.LISTPRICEPERONEFIELD,
+		_const.LISTPRICEFIELD,
+		_const.LISTQUANTITYFIELD,
+		_const.LISTPRICEUSERIDFIELD,
+		_const.SALEPRICEPERONEFIELD,
+		_const.SALEPRICETYPEID,
+		_const.SALEVALUE1FIELD,
+		_const.SALEVALUE2FIELD,
+		_const.SALEVALUE3FIELD,
+		_const.SALEPRICEUSERIDFIELD,
+		_const.SALEENDDATEFIELD,
+		_const.COUPONPRICEPERONEFIELD,
+		_const.COUPONPRICETYPEIDFIELD,
+		_const.COUPONVALUE1FIELD,
+		_const.COUPONVALUE2FIELD,
+		_const.COUPONVALUE3FIELD,
+		_const.COUPONURIFIELD,
+		_const.COUPONENDDATEFIELD,
+		_const.UNITPRICEPERONEFIELD,
+		_const.UNIDESCFIELD,
+		_const.FINALPRICEFIELD,
 	}
 
 	finalPriceInnerHit := elastic.NewInnerHit().
 		Name("MINIMAL").
-		FetchSourceContext(elastic.NewFetchSourceContext(true).Include(PRODUCTIDFIELD)).
+		FetchSourceContext(elastic.NewFetchSourceContext(true).Include(_const.PRODUCTIDFIELD)).
 		DocvalueFields(docValueFields...).
-		Sort(FINALPRICEFIELD, true).
+		Sort(_const.FINALPRICEFIELD, true).
 		Size(1)
 
 	listPricePerOneInnerHit := elastic.NewInnerHit().
 		Name("MAXIMUM").
-		FetchSourceContext(elastic.NewFetchSourceContext(true).Include(PRODUCTIDFIELD)).
+		FetchSourceContext(elastic.NewFetchSourceContext(true).Include(_const.PRODUCTIDFIELD)).
 		DocvalueFields(docValueFields...).
-		Sort(LISTPRICEPERONEFIELD, false).
+		Sort(_const.LISTPRICEPERONEFIELD, false).
 		Size(1)
 
 	collapseBuilder := elastic.
-		NewCollapseBuilder(PRODUCTIDFIELD).
+		NewCollapseBuilder(_const.PRODUCTIDFIELD).
 		InnerHit(finalPriceInnerHit).
 		InnerHit(listPricePerOneInnerHit)
 
 	searchQuery := svc.elasticClient.
-		Search(PROUCTPRICEINDEX).
+		Search(_const.PROUCTPRICEINDEX).
 		Query(fq.
 			Query(bq).
 			AddScoreFunc(businessValueScore).
@@ -279,9 +280,9 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 
 	fq := elastic.NewFunctionScoreQuery()
 
-	productIdQuery := elastic.NewTermQuery(PRODUCTIDFIELD, filter.productId)
-	priceStatusFilter := elastic.NewTermsQuery(PRICESTATUSFIELD, "0")
-	productStatusFilter := elastic.NewTermsQuery(PRODUCTSTATUSFIELD, "0")
+	productIdQuery := elastic.NewTermQuery(_const.PRODUCTIDFIELD, filter.productId)
+	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
+	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
 
 	bq := elastic.NewBoolQuery().Filter(productIdQuery).Filter(priceStatusFilter, productStatusFilter)
 
@@ -293,26 +294,26 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 
 	businessValueScore := elastic.
 		NewFieldValueFactorFunction().
-		Field(BUSINESSVALUEFIELD).
+		Field(_const.BUSINESSVALUEFIELD).
 		Missing(1.0)
 	popularityScore := elastic.NewFieldValueFactorFunction().
-		Field(POPULARITYFIELD).
+		Field(_const.POPULARITYFIELD).
 		Factor(0.001).
 		Missing(1.0)
 	totalPricesScore := elastic.
 		NewFieldValueFactorFunction().
-		Field(TOTALPRICESCOREFIELD).
+		Field(_const.TOTALPRICESCOREFIELD).
 		Factor(0.0001).
 		Missing(1.0)
 
 	if filter.location != nil {
-		geoLocationFilter := elastic.NewGeoDistanceQuery(LOCATIONFIELD).GeoPoint(filter.location).Distance("25mi")
+		geoLocationFilter := elastic.NewGeoDistanceQuery(_const.LOCATIONFIELD).GeoPoint(filter.location).Distance("25mi")
 		bq.Filter(geoLocationFilter)
 	}
 
 	fq.Query(bq).AddScoreFunc(businessValueScore).AddScoreFunc(popularityScore).AddScoreFunc(totalPricesScore)
 
-	searchResult, err := svc.elasticClient.Search(PROUCTPRICEINDEX).Query(fq).Do(ctx)
+	searchResult, err := svc.elasticClient.Search(_const.PROUCTPRICEINDEX).Query(fq).Do(ctx)
 
 	if err != nil {
 		errors.ServerError(err)
@@ -328,7 +329,6 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 					fmt.Println(json.Unmarshal(*h.Source, &ih))
 				}
 			}
-
 			err := json.Unmarshal(*hit.Source, &t)
 
 			if err != nil {
@@ -345,18 +345,18 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 }
 
 type ProductEstimate struct {
-	Etype EstimateType `json:"Etype"`
-	Min   *float64     `json:"Min"`
-	Max   *float64     `json:"Max"`
+	Etype _const.EstimateType `json:"Etype"`
+	Min   *float64            `json:"Min"`
+	Max   *float64            `json:"Max"`
 }
 
 func (e *ProductEstimate) transformFromTermsBucket(bucket *elastic.AggregationBucketKeyItems) {
 	if len(bucket.Buckets) == 1 {
-		max, ok := bucket.Buckets[0].Aggregations.Max(MAXFINALPRICELABEL)
+		max, ok := bucket.Buckets[0].Aggregations.Max(_const.MAXFINALPRICELABEL)
 		if ok {
 			e.Max = max.Value
 		}
-		min, ok := bucket.Buckets[0].Aggregations.Min(MINFINALPRICELABEL)
+		min, ok := bucket.Buckets[0].Aggregations.Min(_const.MINFINALPRICELABEL)
 		if ok {
 			e.Min = min.Value
 		}
@@ -373,10 +373,10 @@ func (a *EstimateTermsAgg) Generate() *elastic.TermsAggregation {
 		NewTermsAggregation().
 		Field(a.fieldName).
 		Include(a.inclusionVal).
-		SubAggregation(MINFINALPRICELABEL, elastic.NewMinAggregation().Field(FINALPRICEFIELD)).
-		SubAggregation(MAXFINALPRICELABEL, elastic.NewMaxAggregation().Field(FINALPRICEFIELD)).
-		SubAggregation(MINLISTLABEL, elastic.NewMinAggregation().Field(LISTPRICEFIELD)).
-		SubAggregation(MAXLISTLABEL, elastic.NewMaxAggregation().Field(LISTPRICEFIELD))
+		SubAggregation(_const.MINFINALPRICELABEL, elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)).
+		SubAggregation(_const.MAXFINALPRICELABEL, elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)).
+		SubAggregation(_const.MINLISTLABEL, elastic.NewMinAggregation().Field(_const.LISTPRICEFIELD)).
+		SubAggregation(_const.MAXLISTLABEL, elastic.NewMaxAggregation().Field(_const.LISTPRICEFIELD))
 }
 
 func NewEstimateTermsAgg(fieldName string, inclusionVal string) *EstimateTermsAgg {
@@ -387,5 +387,5 @@ func NewEstimateTermsAgg(fieldName string, inclusionVal string) *EstimateTermsAg
 }
 
 type ChainId json.Number
-type EstimatedPriceItem map[EstimateType]*ProductEstimate
+type EstimatedPriceItem map[_const.EstimateType]*ProductEstimate
 type EstimatedPriceResponse map[ChainId]EstimatedPriceItem

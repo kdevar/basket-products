@@ -4,29 +4,30 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
+	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
-	"strconv"
+	"github.com/kdevar/basket-products/const"
 )
 
 type storesServiceImpl struct {
 	elasticClient *elastic.Client
 }
 
-func GetLatLonString(r elastic.GeoPoint) string {
-	return strconv.FormatFloat(r.Lat, 'f', 6, 64) + "," + strconv.FormatFloat(r.Lon, 'f', 6, 64)
+func GetLatLonString(r *elastic.GeoPoint) string {
+	return util.ConvertPointToString(r)
 }
 
-func (svc *storesServiceImpl) GetStoresForLocation(point elastic.GeoPoint) ([]Store, *errors.ApiError) {
+func (svc *storesServiceImpl) GetStoresForLocation(point *elastic.GeoPoint) ([]Store, *errors.ApiError) {
 
 	origin := GetLatLonString(point)
 
-	priceStatusFilter := elastic.NewTermsQuery("priceStatus", "0")
-	productStatusFilter := elastic.NewTermsQuery("productStatus", "0")
+	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
+	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
 
 	geoQuery := elastic.
 		NewGeoDistanceQuery("location").
-		GeoPoint(&point).
+		GeoPoint(point).
 		Distance("25mi")
 
 	boolQuery := elastic.NewBoolQuery().Must(geoQuery, productStatusFilter, priceStatusFilter)
@@ -72,12 +73,10 @@ func (svc *storesServiceImpl) GetStoresForLocation(point elastic.GeoPoint) ([]St
 			stores = append(stores, store)
 		}
 	}
-
 	return stores, nil
-
 }
 
-func (svc *storesServiceImpl) GetChainsForLocation(point elastic.GeoPoint) ([]Chain, *errors.ApiError) {
+func (svc *storesServiceImpl) GetChainsForLocation(point *elastic.GeoPoint) ([]Chain, *errors.ApiError) {
 	stores, err := svc.GetStoresForLocation(point)
 
 	if err != nil {

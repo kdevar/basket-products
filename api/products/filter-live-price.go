@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/olivere/elastic"
 	"strconv"
+	"github.com/kdevar/basket-products/const"
 )
 
 type LivePriceFilter struct {
@@ -13,11 +14,11 @@ type LivePriceFilter struct {
 }
 
 func (filter *LivePriceFilter) transform(c *gin.Context) {
-	latitude, laterr := strconv.ParseFloat(c.GetHeader("latitude"), 64)
-	longitude, longerr := strconv.ParseFloat(c.GetHeader("longitude"), 64)
+	latitude, laterr := strconv.ParseFloat(c.GetHeader(_const.LATITUDEFIELD), 64)
+	longitude, longerr := strconv.ParseFloat(c.GetHeader(_const.LONGITUDEFIELD), 64)
 
-	productId := c.Params.ByName("productid")
-	storeIds, _ := c.GetQueryArray("storeId")
+	productId := c.Params.ByName(_const.PRODUCTIDFIELD)
+	storeIds, _ := c.GetQueryArray(_const.STOREIDFIELD)
 
 	filter.productId = productId
 	filter.storeIds = storeIds

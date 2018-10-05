@@ -4,7 +4,7 @@ import (
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/kdevar/basket-products/api/area"
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/api/products"
 	"github.com/kdevar/basket-products/api/typeahead"
 	"github.com/kdevar/basket-products/config"

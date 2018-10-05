@@ -1,7 +1,7 @@
 package area
 
 import (
-	"github.com/kdevar/basket-products/api/errors"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/api/stores"
 	"github.com/kdevar/basket-products/config"
 	"github.com/olivere/elastic"

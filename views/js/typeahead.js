@@ -14,7 +14,6 @@ import {emphasize} from '@material-ui/core/styles/colorManipulator';
 import AsyncSelect from 'react-select/lib/Async';
 import {debounce} from 'lodash';
 
-
 const styles = theme => ({
     root: {
         flexGrow: 1,
