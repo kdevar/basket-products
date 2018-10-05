@@ -102,5 +102,4 @@ func (p *Product) GetListPriceEffectiveDate() (time.Time, error) {
 
 func stringToTime(s string) (time.Time, error) {
 	return time.Parse("2006-01-02T15:04:05", s)
-
 }

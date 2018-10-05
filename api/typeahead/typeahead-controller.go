@@ -1,13 +1,14 @@
 package typeahead
 
 import (
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/kdevar/basket-products/api/errors"
-	"net/http"
-	"encoding/json"
 	"io/ioutil"
+	"net/http"
 )
-var Controller *typeaheadController
+
+var Controller *TypeaheadController
 
 type Suggestions struct {
 	Content struct {
@@ -22,22 +23,22 @@ type Suggestions struct {
 	Message   interface{} `json:"message"`
 }
 
-func init(){
-	Controller = &typeaheadController{}
+func init() {
+	Controller = &TypeaheadController{}
 }
 
-type typeaheadController struct{}
+type TypeaheadController struct{}
 
-func (ctrl *typeaheadController) GetSuggestedProducts(c *gin.Context) *errors.ApiError {
+func (ctrl *TypeaheadController) GetSuggestedProducts(c *gin.Context) *errors.ApiError {
 	keyword, _ := c.GetQuery("query")
 
-	if len(keyword) < 3{
+	if len(keyword) < 3 {
 		c.JSON(http.StatusOK, nil)
 		return nil
 	}
 
 	latitude := c.GetHeader("latitude")
-	longitude :=c.GetHeader("longitude")
+	longitude := c.GetHeader("longitude")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.basketsavings.com/search2/search/suggested2", nil)
 
@@ -45,11 +46,11 @@ func (ctrl *typeaheadController) GetSuggestedProducts(c *gin.Context) *errors.Ap
 		return errors.ServerError(err)
 	}
 
-	req.Header.Add("Authorization", "c9764fd946b54b9195adc4b7a2ca58cd")
+	req.Header.Add("Authorization", "e575fa3c913a4c91b224f66969e63a66")
 	q := req.URL.Query()
 	q.Add("query", keyword)
-	q.Add("latitude", latitude )
-	q.Add("longitude", longitude )
+	q.Add("latitude", latitude)
+	q.Add("longitude", longitude)
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 	defer resp.Body.Close()

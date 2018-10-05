@@ -2,8 +2,8 @@ package errors
 
 import (
 	"errors"
-	"github.com/gin-gonic/gin"
 	"fmt"
+	"github.com/gin-gonic/gin"
 )
 
 type WithError func(context *gin.Context) *ApiError

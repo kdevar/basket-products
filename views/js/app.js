@@ -1,31 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Drawer from '@material-ui/core/Drawer';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import Divider from '@material-ui/core/Divider';
-import IconButton from '@material-ui/core/IconButton';
-import Badge from '@material-ui/core/Badge';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import NotificationsIcon from '@material-ui/icons/Notifications';
-import { mainListItems, secondaryListItems } from './listItems';
 import SearchIcon from '@material-ui/icons/Search';
-import { fade } from '@material-ui/core/styles/colorManipulator';
-import SimpleTable from './SimpleTable';
 import Typeahead from './typeahead';
-import Input from '@material-ui/core/Input';
 import Products from './products';
-import TextField from '@material-ui/core/TextField'
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import Location from './location'
-
 
 
 const drawerWidth = 240;
@@ -35,7 +19,7 @@ const styles = theme => ({
         display: 'flex',
     },
 
-    search:{
+    search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
         backgroundColor: fade(theme.palette.common.white, 0.15),
@@ -52,30 +36,30 @@ const styles = theme => ({
     },
 
     searchIcon: {
-    width: theme.spacing.unit * 9,
+        width: theme.spacing.unit * 9,
         height: '100%',
         position: 'absolute',
         pointerEvents: 'none',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-},
-inputRoot: {
-    color: 'inherit',
+    },
+    inputRoot: {
+        color: 'inherit',
         width: '100%',
-},
-inputInput: {
-    paddingTop: theme.spacing.unit,
+    },
+    inputInput: {
+        paddingTop: theme.spacing.unit,
         paddingRight: theme.spacing.unit,
         paddingBottom: theme.spacing.unit,
         paddingLeft: theme.spacing.unit * 10,
         transition: theme.transitions.create('width'),
         width: '100%',
         [theme.breakpoints.up('md')]: {
-        width: '100%' ,
+            width: '100%',
+        },
     },
-},
-    placeholder:{
+    placeholder: {
         paddingLeft: theme.spacing.unit * 10,
         color: 'white'
     },
@@ -160,57 +144,52 @@ class Dashboard extends React.Component {
         open: false,
         latitude: "38.8876531",
         longitude: "-77.0954574",
-        response:[],
+        response: [],
         location: [],
         loadingLocation: true,
-        productIdDetails:{
-
-        },
-        productDetails: {
-
-        }
+        productIdDetails: {},
+        productDetails: {}
     };
 
-    onSearchCompleted(suggestion){
+    onSearchCompleted(suggestion) {
         this.setState({response: []});
         return this.fetchItems(suggestion);
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.fetchLocationDetails();
     }
 
-    fetchLocationDetails(loc){
-        this.setState({loadingLocation:true, response:[]});
-        if(loc){
+    fetchLocationDetails(loc) {
+        this.setState({loadingLocation: true, response: []});
+        if (loc) {
             this.setState({
                 latitude: loc.lat,
                 longitude: loc.lng
             });
         }
         fetch("/api/area", {
-            headers:{
+            headers: {
                 latitude: this.state.latitude,
                 longitude: this.state.longitude
             }
-        }).
-        then(response => response.json()).then(response => {
-            this.setState({location:response, loadingLocation:false})
+        }).then(response => response.json()).then(response => {
+            this.setState({location: response, loadingLocation: false})
             return this.fetchItems();
         })
     }
 
-    fetchItems(s){
-        if(s){
-            this.setState({suggestion:s})
+    fetchItems(s) {
+        if (s) {
+            this.setState({suggestion: s})
         }
         const suggestion = s || this.state.suggestion;
 
-        if(!suggestion || !suggestion.name){
+        if (!suggestion || !suggestion.name) {
             return;
         }
 
-        return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId="+suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId="+suggestion.id : ""}&category=${suggestion.category || ""}`, {
+        return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId=" + suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId=" + suggestion.id : ""}&category=${suggestion.category || ""}`, {
             headers: {
                 "latitude": this.state.latitude,
                 "longitude": this.state.longitude
@@ -219,7 +198,8 @@ class Dashboard extends React.Component {
             this.setState({response})
         })
     }
-    getProductData(productRow){
+
+    getProductData(productRow) {
         fetch(`/api/basket-products/${productRow.productId}/prices`, {
             headers: {
                 "latitude": this.state.latitude,
@@ -229,7 +209,8 @@ class Dashboard extends React.Component {
 
         })
     }
-    getProductEstimateData(productRow){
+
+    getProductEstimateData(productRow) {
         fetch(`/api/basket-products/${productRow.productId}/?${getChainsAsUrlParams(this.state.location.chains)}&metroAreaId=${this.state.location.metroAreaId}&cityId=${this.state.location.cityId}&zipCodeId=${this.state.location.zipCodeId}`, {
             headers: {
                 "latitude": this.state.latitude,
@@ -241,19 +222,19 @@ class Dashboard extends React.Component {
     }
 
     handleDrawerOpen = () => {
-        this.setState({ open: true });
+        this.setState({open: true});
     };
 
     handleDrawerClose = () => {
-        this.setState({ open: false });
+        this.setState({open: false});
     };
 
     render() {
-        const { classes } = this.props;
+        const {classes} = this.props;
 
         return (
             <React.Fragment>
-                <CssBaseline />
+                <CssBaseline/>
                 <div className={classes.root}>
                     <AppBar
                         position="absolute"
@@ -263,7 +244,7 @@ class Dashboard extends React.Component {
                                 <Grid item xs={12}>
                                     <div className={classes.search}>
                                         <div className={classes.searchIcon}>
-                                            <SearchIcon />
+                                            <SearchIcon/>
                                         </div>
 
                                         <Typeahead
@@ -286,7 +267,7 @@ class Dashboard extends React.Component {
                     <main className={classes.content}>
 
 
-                        <div className={classes.appBarSpacer} />
+                        <div className={classes.appBarSpacer}/>
 
                         <Grid container spacing={24}>
                             <Grid item xs={9}>
@@ -300,10 +281,10 @@ class Dashboard extends React.Component {
                                           tileData={this.state.response}/>
                             </Grid>
                             <Grid item xs={3}>
-                                <Location loading={this.state.loadingLocation} area={this.state.location} onLocationChange={this.fetchLocationDetails.bind(this)}/>
+                                <Location loading={this.state.loadingLocation} area={this.state.location}
+                                          onLocationChange={this.fetchLocationDetails.bind(this)}/>
                             </Grid>
                         </Grid>
-
 
 
                         <div className={classes.tableContainer}>

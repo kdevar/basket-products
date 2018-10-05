@@ -1,28 +1,23 @@
 package stores
 
 import (
-	"github.com/olivere/elastic"
-	"github.com/kdevar/basket-products/config"
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/kdevar/basket-products/api/errors"
+	"github.com/olivere/elastic"
 	"strconv"
 )
 
-var Service *storesService
-
-func init(){
-	Service = &storesService{}
+type storesServiceImpl struct {
+	elasticClient *elastic.Client
 }
-
-type storesService struct {}
 
 func GetLatLonString(r elastic.GeoPoint) string {
 	return strconv.FormatFloat(r.Lat, 'f', 6, 64) + "," + strconv.FormatFloat(r.Lon, 'f', 6, 64)
 }
 
-func (svc *storesService) GetStoresForLocation(point elastic.GeoPoint) ([]Store, *errors.ApiError){
+func (svc *storesServiceImpl) GetStoresForLocation(point elastic.GeoPoint) ([]Store, *errors.ApiError) {
 
 	origin := GetLatLonString(point)
 
@@ -57,9 +52,7 @@ func (svc *storesService) GetStoresForLocation(point elastic.GeoPoint) ([]Store,
 		SubAggregation("top-hits", elastic.NewTopHitsAggregation().Size(1).SortBy(
 			elastic.NewGeoDistanceSort("location").Point(point.Lat, point.Lon).Asc()))
 
-
-	result, err :=config.
-		ElasticClient.
+	result, err := svc.elasticClient.
 		Search("prices").
 		Query(funScoreQuery).
 		Aggregation("chains", a).
@@ -69,13 +62,12 @@ func (svc *storesService) GetStoresForLocation(point elastic.GeoPoint) ([]Store,
 		fmt.Println(err)
 	}
 
-
 	groups, _ := result.Aggregations.Terms("chains")
 	var store Store
 	var stores []Store
 	for _, b := range groups.Buckets {
 		ts, _ := b.Aggregations.TopHits("top-hits")
-		for _,hit := range ts.Hits.Hits{
+		for _, hit := range ts.Hits.Hits {
 			json.Unmarshal(*hit.Source, &store)
 			stores = append(stores, store)
 		}
@@ -85,7 +77,7 @@ func (svc *storesService) GetStoresForLocation(point elastic.GeoPoint) ([]Store,
 
 }
 
-func (svc *storesService) GetChainsForLocation(point elastic.GeoPoint) ([]Chain, *errors.ApiError){
+func (svc *storesServiceImpl) GetChainsForLocation(point elastic.GeoPoint) ([]Chain, *errors.ApiError) {
 	stores, err := svc.GetStoresForLocation(point)
 
 	if err != nil {
@@ -95,7 +87,7 @@ func (svc *storesService) GetChainsForLocation(point elastic.GeoPoint) ([]Chain,
 	chains := make(map[int]Chain)
 	chainsArr := []Chain{}
 
-	for _,store := range stores {
+	for _, store := range stores {
 		if val, ok := chains[store.ChainID]; !ok {
 			chains[store.ChainID] = store.Chain
 			chainsArr = append(chainsArr, val)
@@ -103,8 +95,4 @@ func (svc *storesService) GetChainsForLocation(point elastic.GeoPoint) ([]Chain,
 	}
 
 	return chainsArr, nil
-}
-
-func (svc *storesService) GetUserFavorites(){
-
 }

@@ -1,20 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
-import GridListTileBar from '@material-ui/core/GridListTileBar';
-import IconButton from '@material-ui/core/IconButton';
-import StarBorderIcon from '@material-ui/icons/StarBorder';
+import {withStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import classNames from 'classnames';
 import ExpansionPanel from '@material-ui/core/ExpansionPanel';
 import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelActions from '@material-ui/core/ExpansionPanelActions';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import Chip from '@material-ui/core/Chip';
-import Button from '@material-ui/core/Button';
 import Divider from '@material-ui/core/Divider';
 import SimpleTable from './SimpleTable';
 
@@ -58,20 +48,20 @@ const Products = props => {
     return (
         <div className={classes.root}>
             {props.tileData &&
-             props.tileData.map(tile => <StyledExpansionRow
-                 getStores={props.getStores}
-                 getStoresQuery={props.getStoresQuery}
-                 getChainsQuery={props.getChainsQuery}
-                 getLatitude={props.getLatitude}
-                 getLongitude={props.getLongitude}
-                 getLocationData={props.getLocationData}
-                 getProductData={props.getProductData} row={tile} />)}
+            props.tileData.map(tile => <StyledExpansionRow
+                getStores={props.getStores}
+                getStoresQuery={props.getStoresQuery}
+                getChainsQuery={props.getChainsQuery}
+                getLatitude={props.getLatitude}
+                getLongitude={props.getLongitude}
+                getLocationData={props.getLocationData}
+                getProductData={props.getProductData} row={tile}/>)}
         </div>
     )
 }
 
-class ExpansionRow extends React.Component{
-    constructor(props){
+class ExpansionRow extends React.Component {
+    constructor(props) {
         super(props);
         this.props = props;
         this.state = {
@@ -80,7 +70,7 @@ class ExpansionRow extends React.Component{
         }
     }
 
-    getProductData(productRow){
+    getProductData(productRow) {
         return fetch(`/api/basket-products/${productRow.productId}/prices?${this.props.getStoresQuery()}`, {
             headers: {
                 "latitude": this.props.getLatitude(),
@@ -89,7 +79,7 @@ class ExpansionRow extends React.Component{
         }).then(response => response.json())
     }
 
-    getProductEstimateData(productRow){
+    getProductEstimateData(productRow) {
         const location = this.props.getLocationData();
 
         return fetch(`/api/basket-products/${productRow.productId}/estimated-prices?${this.props.getChainsQuery()}&cityId=${location.cityId}&zipCodeId=${location.postalCodeId}&metroAreaId=${location.metroAreaId}`, {
@@ -100,18 +90,18 @@ class ExpansionRow extends React.Component{
         }).then(response => response.json())
     }
 
-    onChange(event, expanded){
-        if(expanded){
+    onChange(event, expanded) {
+        if (expanded) {
             this.getProductData(this.props.row).then(details => this.setState({details}))
             this.getProductEstimateData(this.props.row).then(estimateDetails => this.setState({estimateDetails}))
         }
     }
-    
-    render(){
+
+    render() {
         const {classes} = this.props;
         return (
             <ExpansionPanel onChange={this.onChange.bind(this)}>
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon/>}>
                     <div className={classes.column}>
                         <Typography className={classes.secondaryHeading}>{this.props.row.productId}</Typography>
                     </div>
@@ -128,8 +118,9 @@ class ExpansionRow extends React.Component{
                         <Typography className={classes.secondaryHeading}>{this.props.row.sizeDesc}</Typography>
                     </div>
                 </ExpansionPanelSummary>
-                <StyleExpansionDetails estimateDetails={this.state.estimateDetails} getStores={this.props.getStores} data={this.state.details}/>
-                <Divider />
+                <StyleExpansionDetails estimateDetails={this.state.estimateDetails} getStores={this.props.getStores}
+                                       data={this.state.details}/>
+                <Divider/>
             </ExpansionPanel>
         );
     }
@@ -139,12 +130,12 @@ const ExpansionDetails = props => {
     const {classes} = props;
     const stores = props.getStores();
     let estimatedData = [];
-    if(props.estimateDetails){
-         estimatedData = Object.keys(props.estimateDetails).map(chainId => {
+    if (props.estimateDetails) {
+        estimatedData = Object.keys(props.estimateDetails).map(chainId => {
 
-            const store = stores &&!storeExists && stores.find(s => s.ChainID == chainId);
+            const store = stores && !storeExists && stores.find(s => s.ChainID == chainId);
             const storeExists = store && props.data && props.data.find(s => s.storeId === store.StoreID)
-            if(store && !storeExists){
+            if (store && !storeExists) {
                 return {
                     ...store,
                     ...props.estimateDetails[chainId]
@@ -155,9 +146,13 @@ const ExpansionDetails = props => {
         }).filter(n => n);
     }
 
-    return (<ExpansionPanelDetails className={classes.details}>
-        <SimpleTable estimatedData={estimatedData} data ={props.data}/>
-    </ExpansionPanelDetails>)
+    return (
+        <ExpansionPanelDetails className={classes.details}>
+            <SimpleTable
+                estimatedData={estimatedData}
+                data={props.data}/>
+        </ExpansionPanelDetails>
+    )
 };
 
 const StyledExpansionRow = withStyles(styles)(ExpansionRow)

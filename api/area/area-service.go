@@ -1,38 +1,36 @@
 package area
 
 import (
-	"github.com/olivere/elastic"
-	"encoding/json"
-	"net/http"
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"github.com/kdevar/basket-products/api/errors"
 	"github.com/kdevar/basket-products/api/stores"
+	"github.com/kdevar/basket-products/config"
+	"github.com/olivere/elastic"
+	"io/ioutil"
+	"net/http"
 	"strconv"
 )
 
-var Service *areaService
-
-func init(){
-	Service = &areaService{}
+type areaServiceImpl struct {
+	Config       *config.Config
+	storeService stores.StoreService
 }
 
-type areaService struct {}
-
-func (svc *areaService) GetAreaInformation(point elastic.GeoPoint) (Area, *errors.ApiError) {
-	jsonData := []map[string]float64{{"latitude": point.Lat, "longitude": point.Lon}}
+func (svc *areaServiceImpl) GetAreaInformation(point elastic.GeoPoint) (Area, *errors.ApiError) {
+	jsonData := []map[string]float64{{
+		"latitude":  point.Lat,
+		"longitude": point.Lon,
+	}}
 	jsonValue, _ := json.Marshal(jsonData)
-	response, err := http.Post("https://api.basketsavings.com/lookup/internal/area/locate", "application/json", bytes.NewBuffer(jsonValue))
+	response, err := http.Post(svc.Config.BasketBaseApiPath+svc.Config.AreaContextPath, "application/json", bytes.NewBuffer(jsonValue))
 
-
-		s, _ := stores.Service.GetStoresForLocation(point)
+	s, _ := svc.storeService.GetStoresForLocation(point)
 	chains := make(map[string]stores.Chain)
-	for _,store := range s {
+	for _, store := range s {
 		chains[strconv.Itoa(store.ChainID)] = store.Chain
 	}
-
-
 
 	if err != nil {
 		fmt.Println("couldn't call lookup api")
@@ -55,6 +53,6 @@ func (svc *areaService) GetAreaInformation(point elastic.GeoPoint) (Area, *error
 	return area, nil
 }
 
-func (svc *areaService) GetTotalAreaInformation(point elastic.GeoPoint) (){
+func (svc *areaServiceImpl) GetTotalAreaInformation(point elastic.GeoPoint) {
 
 }

@@ -1,5 +1,81 @@
 package config
 
-import "github.com/olivere/elastic"
+import (
+	"flag"
+	"github.com/olivere/elastic"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
+	"log"
+)
 
-var ElasticClient, e = elastic.NewSimpleClient(elastic.SetURL("https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/"))
+type Env string
+
+func (e *Env) Set(s string) error {
+	*e = Env(s)
+	return nil
+}
+
+func (e *Env) String() string {
+	return string(*e)
+}
+
+const (
+	DEV  Env = "dev"
+	TEST Env = "test"
+	PROD Env = "prod"
+)
+
+type Config struct {
+	ReindexedClusterPath string `yaml:"ReindexedClusterPath"`
+	BasketBaseApiPath    string `yaml:"BasketBaseApiPath"`
+	TypeAheadContextPath string `yaml:"TypeAheadContextPath"`
+	AreaContextPath      string `yaml:"AreaContextPath"`
+}
+
+type EnvConfig struct {
+	Dev  Config
+	Test Config
+	Prod Config
+}
+
+func (ec *EnvConfig) GetConfig(e Env) Config {
+	switch e {
+	case DEV:
+		return ec.Dev
+	case TEST:
+		return ec.Test
+	case PROD:
+		return ec.Prod
+	default:
+		return ec.Dev
+	}
+}
+
+func NewConfig() *Config {
+	yamlFile, err := ioutil.ReadFile("config.yml")
+
+	var env Env
+	flag.Var(&env, "env", "what is the env")
+
+	flag.Parse()
+
+	if err != nil {
+		log.Printf("yamlFile.Get err   #%v ", err)
+	}
+
+	var envConfig EnvConfig
+	err = yaml.Unmarshal(yamlFile, &envConfig)
+
+	if err != nil {
+		log.Printf("yamlFile unmarshal err   #%v ", err)
+	}
+
+	currentConfig := envConfig.GetConfig(env)
+
+	return &currentConfig
+}
+
+func NewElasticClient(c *Config) *elastic.Client {
+	client, _ := elastic.NewSimpleClient(elastic.SetURL(c.ReindexedClusterPath))
+	return client
+}

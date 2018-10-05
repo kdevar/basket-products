@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import Table from '@material-ui/core/Table';
@@ -8,7 +8,6 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Paper from '@material-ui/core/Paper';
 
 const styles = {
     root: {
@@ -23,46 +22,46 @@ const styles = {
 
 let id = 0;
 
-function render(min,max){
-    if(!min && !max) return "-";
+function render(min, max) {
+    if (!min && !max) return "-";
     if (min === max) {
         return max;
     }
     return `${min}-${max}`;
 }
 
-function renderUserPrices(props){
-    const { classes } = props;
-    if(!props.data || props.data.length === 0){
+function renderUserPrices(props) {
+    const {classes} = props;
+    if (!props.data || props.data.length === 0) {
         return (<div><Typography variant={"caption"}>No User or Cluster Prices available</Typography><Divider/></div>);
     }
     return (
-    <Table className={classes.table}>
-        <TableHead>
-            <TableRow>
-                <TableCell >Store Name</TableCell>
-                <TableCell numeric>List Price</TableCell>
-                <TableCell numeric>Sale Price</TableCell>
-                <TableCell numeric>Final Price</TableCell>
-            </TableRow>
-        </TableHead>
-        <TableBody>
-            {props.data && props.data.map(price => (
+        <Table className={classes.table}>
+            <TableHead>
                 <TableRow>
-                    <TableCell >{price.fullStoreName}</TableCell>
-
-                    <TableCell numeric>{price.listPrice}</TableCell>
-                    <TableCell numeric>{price.salePrice}</TableCell>
-                    <TableCell numeric>{price.finalPrice}</TableCell>
+                    <TableCell>Store Name</TableCell>
+                    <TableCell numeric>List Price</TableCell>
+                    <TableCell numeric>Sale Price</TableCell>
+                    <TableCell numeric>Final Price</TableCell>
                 </TableRow>
-            ))}
-        </TableBody>
-    </Table>);
+            </TableHead>
+            <TableBody>
+                {props.data && props.data.map(price => (
+                    <TableRow>
+                        <TableCell>{price.fullStoreName}</TableCell>
+
+                        <TableCell numeric>{price.listPrice}</TableCell>
+                        <TableCell numeric>{price.salePrice}</TableCell>
+                        <TableCell numeric>{price.finalPrice}</TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>);
 }
 
-function renderEstimatedPrice(props){
-    const { classes } = props;
-    if(!props.estimatedData || props.estimatedData.length === 0){
+function renderEstimatedPrice(props) {
+    const {classes} = props;
+    if (!props.estimatedData || props.estimatedData.length === 0) {
         return (<div><Typography variant={"caption"}>Unable to estimate</Typography><Divider/></div>);
     }
     return (
@@ -70,7 +69,7 @@ function renderEstimatedPrice(props){
         <Table className={classes.table}>
             <TableHead>
                 <TableRow>
-                    <TableCell >Store Name</TableCell>
+                    <TableCell>Store Name</TableCell>
 
                     <TableCell numeric>City Est</TableCell>
                     <TableCell numeric>Metro Est</TableCell>
@@ -83,13 +82,13 @@ function renderEstimatedPrice(props){
             <TableBody>
                 {props.estimatedData && props.estimatedData.map(price => (
                     <TableRow>
-                        <TableCell >{price.FullStoreName}</TableCell>
-                        <TableCell numeric>{render(price.CITY.Min,price.CITY.Max)}</TableCell>
-                        <TableCell numeric>{render(price.METRO.Min,price.METRO.Max)}</TableCell>
-                        <TableCell numeric>{render(price.ZIP.Min,price.ZIP.Max)}</TableCell>
-                        <TableCell numeric>{render(price.FIFTYMILE.Min,price.FIFTYMILE.Max)}</TableCell>
-                        <TableCell numeric>{render(price.HUNDREDMILES.Min,price.HUNDREDMILES.Max)}</TableCell>
-                        <TableCell numeric>{render(price.NATIONALMILES.Min,price.NATIONALMILES.Max)}</TableCell>
+                        <TableCell>{price.FullStoreName}</TableCell>
+                        <TableCell numeric>{render(price.CITY.Min, price.CITY.Max)}</TableCell>
+                        <TableCell numeric>{render(price.METRO.Min, price.METRO.Max)}</TableCell>
+                        <TableCell numeric>{render(price.ZIP.Min, price.ZIP.Max)}</TableCell>
+                        <TableCell numeric>{render(price.FIFTYMILE.Min, price.FIFTYMILE.Max)}</TableCell>
+                        <TableCell numeric>{render(price.HUNDREDMILES.Min, price.HUNDREDMILES.Max)}</TableCell>
+                        <TableCell numeric>{render(price.NATIONALMILES.Min, price.NATIONALMILES.Max)}</TableCell>
 
                     </TableRow>
                 ))}
@@ -99,7 +98,7 @@ function renderEstimatedPrice(props){
 }
 
 function SimpleTable(props) {
-    const { classes } = props;
+    const {classes} = props;
 
     return (
         <div className={classes.root}>

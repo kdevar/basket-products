@@ -1,0 +1,15 @@
+default: &DEFAULT
+  TypeAheadContextPath: /search2/search/suggested2
+  AreaContextPath: /lookup/internal/area/locate
+dev:
+  <<: *DEFAULT
+  ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
+  BasketBaseApiPath: https://api.basketsavings.com
+test:
+  <<: *DEFAULT
+  ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
+  BasketBaseApiPath: https://api.basketsavings.com
+prod:
+  <<: *DEFAULT
+  ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
+  BasketBaseApiPath: https://api.basketsavings.com

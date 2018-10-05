@@ -3,16 +3,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import Select from 'react-select';
-import { withStyles } from '@material-ui/core/styles';
+import {withStyles} from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import NoSsr from '@material-ui/core/NoSsr';
 import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
-import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import {emphasize} from '@material-ui/core/styles/colorManipulator';
 import AsyncSelect from 'react-select/lib/Async';
 import {debounce} from 'lodash';
 
@@ -77,7 +75,7 @@ function NoOptionsMessage(props) {
     );
 }
 
-function inputComponent({ inputRef, ...props }) {
+function inputComponent({inputRef, ...props}) {
     return <div ref={inputRef} {...props} />;
 }
 
@@ -173,11 +171,11 @@ const components = {
 };
 
 const promiseOptions = (latitude, longitude, inputValue) => {
-    if(!inputValue){
+    if (!inputValue) {
         return;
     }
     return fetch(`/api/typeahead/products?query=${inputValue}`, {
-        headers:{
+        headers: {
             "Authorization": "c9764fd946b54b9195adc4b7a2ca58cd",
             latitude,
             longitude
@@ -185,22 +183,23 @@ const promiseOptions = (latitude, longitude, inputValue) => {
 
     })
         .then(response => response.json())
-        .then(response =>{
-        return response && response.map(i => {
-            return {
-                ...i,
-                label: i.name,
-                value: i.id
-            }
+        .then(response => {
+            return response && response.map(i => {
+                return {
+                    ...i,
+                    label: i.name,
+                    value: i.id
+                }
+            })
         })
-    })
 };
 
 class IntegrationReactSelect extends React.Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.props = props;
     }
+
     state = {
         currentValue: "",
         single: null,
@@ -208,15 +207,16 @@ class IntegrationReactSelect extends React.Component {
     };
 
     handleChange = (selectedOption) => {
-        this.setState({ selectedOption });
+        this.setState({selectedOption});
         this.props.onSelected(selectedOption);
     }
+
     handleFreeformEvent() {
         this.props.onSelected({name: this.state.currentValue})
     }
 
     render() {
-        const { classes, theme } = this.props;
+        const {classes, theme} = this.props;
         const opt = promiseOptions.bind(null, this.props.latitude, this.props.longitude);
         const selectStyles = {
             input: base => ({
@@ -227,7 +227,7 @@ class IntegrationReactSelect extends React.Component {
 
         return (
             <AsyncSelect classes={classes}
-                         styles={{control:{width:700,color:'white'}}}
+                         styles={{control: {width: 700, color: 'white'}}}
                          noOptionsMessage={() => null}
                          loadingMessage={() => null}
                          components={components}
@@ -235,15 +235,19 @@ class IntegrationReactSelect extends React.Component {
                          defaultOptions
                          autoLoad={false}
                          onInputChange={(currentValue) => this.setState({currentValue})}
-                         noOptionsMessageCSS={() => {display: 'none'}}
-                         onKeyDown={(event) => {
-                            if(event.keyCode === 13){
-                                this.handleFreeformEvent();
-                            }
+                         noOptionsMessageCSS={() => {
+                             display: 'none'
                          }}
-                         ref={a => {const reffee = a}}
+                         onKeyDown={(event) => {
+                             if (event.keyCode === 13) {
+                                 this.handleFreeformEvent();
+                             }
+                         }}
+                         ref={a => {
+                             const reffee = a
+                         }}
                          onChange={this.handleChange}
-                         loadOptions={debounce(opt, 250, {leading: true, trailing: true} )} />
+                         loadOptions={debounce(opt, 250, {leading: true, trailing: true})}/>
 
 
         );
@@ -255,4 +259,4 @@ IntegrationReactSelect.propTypes = {
     theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(IntegrationReactSelect);
+export default withStyles(styles, {withTheme: true})(IntegrationReactSelect);
