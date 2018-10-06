@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/kdevar/basket-products/api"
 	"github.com/kdevar/basket-products/api/area"
 	"github.com/kdevar/basket-products/api/products"
@@ -30,10 +29,6 @@ func CreateContainer() *dig.Container {
 
 func RunServer(server api.Server) {
 	server.Run()
-}
-
-func Cleanup() {
-	fmt.Println("done")
 }
 
 func main() {
