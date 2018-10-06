@@ -6,11 +6,14 @@ dev:
   <<: *DEFAULT
   ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
   BasketBaseApiPath: https://api.basketsavings.com
+  Env: dev
 test:
   <<: *DEFAULT
   ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
   BasketBaseApiPath: https://api.basketsavings.com
+  Env: test
 prod:
   <<: *DEFAULT
   ReindexedClusterPath: https://vpc-reindex-nxvfoonqh3jbcz37uu6b4zfov4.us-east-1.es.amazonaws.com:443/
   BasketBaseApiPath: https://api.basketsavings.com
+  Env: prod

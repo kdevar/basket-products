@@ -9,7 +9,7 @@ type TypeadheadService interface {
 	GetSuggestedProducts(filter Filter) ([]Suggestions, *errors.ApiError)
 }
 
-func NewTypeaheadService(c *config.Config) *TypeaheadServiceImpl {
+func NewTypeaheadService(c *config.Config) TypeadheadService {
 	return &TypeaheadServiceImpl{
 		Config: c,
 	}

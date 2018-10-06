@@ -31,6 +31,7 @@ type Config struct {
 	TypeAheadContextPath string `yaml:"TypeAheadContextPath"`
 	AreaContextPath      string `yaml:"AreaContextPath"`
 	TypeAheadToken       string `yaml:"TypeAheadToken"`
+	Env                  string `yaml:"Env"`
 }
 
 type EnvConfig struct {
@@ -68,15 +69,18 @@ func NewConfig() *Config {
 	err = yaml.Unmarshal(yamlFile, &envConfig)
 
 	if err != nil {
-		log.Printf("yamlFile unmarshal err   #%v ", err)
+		log.Printf("yamlFile unmarshal err   #%v \n", err)
 	}
 
 	currentConfig := envConfig.GetConfig(env)
+
+	log.Printf("Config constructed env=%v config=%v \n", env, currentConfig)
 
 	return &currentConfig
 }
 
 func NewElasticClient(c *Config) *elastic.Client {
 	client, _ := elastic.NewSimpleClient(elastic.SetURL(c.ReindexedClusterPath))
+	log.Println("Elastic Client constructed")
 	return client
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/kdevar/basket-products/api/typeahead"
 	"github.com/kdevar/basket-products/config"
 	"github.com/kdevar/basket-products/errors"
+	"go.uber.org/dig"
 )
 
 type AppHandlerFunc func(*gin.Context) *errors.ApiError
@@ -17,6 +18,7 @@ func withErrorHandling(fn AppHandlerFunc) gin.HandlerFunc {
 }
 
 type ServerParams struct {
+	dig.In
 	Config    *config.Config
 	Area      *area.AreaController
 	Products  *products.ProductsController

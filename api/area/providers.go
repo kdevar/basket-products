@@ -17,7 +17,7 @@ func NewAreaController(svc AreaService) *AreaController {
 	}
 }
 
-func NewAreaService(config *config.Config, s stores.StoreService) *areaServiceImpl {
+func NewAreaService(config *config.Config, s stores.StoreService) AreaService {
 	return &areaServiceImpl{
 		Config:       config,
 		storeService: s,
