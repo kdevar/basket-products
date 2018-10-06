@@ -30,6 +30,7 @@ type Config struct {
 	BasketBaseApiPath    string `yaml:"BasketBaseApiPath"`
 	TypeAheadContextPath string `yaml:"TypeAheadContextPath"`
 	AreaContextPath      string `yaml:"AreaContextPath"`
+	TypeAheadToken       string `yaml:"TypeAheadToken"`
 }
 
 type EnvConfig struct {

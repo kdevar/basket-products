@@ -15,7 +15,8 @@ func main() {
 	elasticClient := config.NewElasticClient(cfg)
 	productsService := products.NewProductService(elasticClient)
 	productController := products.NewProductController(productsService)
-	typeaheadController := &typeahead.TypeaheadController{}
+	typeaheadService := typeahead.NewTypeaheadService(cfg)
+	typeaheadController := typeahead.NewTypeaheadController(typeaheadService)
 	storeService := stores.NewStoreService(elasticClient)
 	areaService := area.NewAreaService(cfg, storeService)
 	areaController := area.NewAreaController(areaService)
