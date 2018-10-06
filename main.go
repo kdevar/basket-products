@@ -9,9 +9,6 @@ import (
 	"github.com/kdevar/basket-products/api/typeahead"
 	"github.com/kdevar/basket-products/config"
 	"go.uber.org/dig"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 func CreateContainer() *dig.Container {
@@ -40,15 +37,6 @@ func Cleanup() {
 }
 
 func main() {
-
-	signals := make(chan os.Signal)
-	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-signals
-		Cleanup()
-		os.Exit(1)
-	}()
-
 	ctr := CreateContainer()
 
 	err := ctr.Invoke(RunServer)
