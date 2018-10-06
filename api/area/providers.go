@@ -1,14 +1,14 @@
 package area
 
 import (
-	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/api/stores"
 	"github.com/kdevar/basket-products/config"
+	"github.com/kdevar/basket-products/errors"
 	"github.com/olivere/elastic"
 )
 
 type AreaService interface {
-	GetAreaInformation(point elastic.GeoPoint) (Area, *errors.ApiError)
+	GetAreaInformation(point elastic.GeoPoint) (*Area, *errors.ApiError)
 }
 
 func NewAreaController(svc AreaService) *AreaController {

@@ -2,9 +2,9 @@ package products
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kdevar/basket-products/const"
 	"github.com/olivere/elastic"
 	"strconv"
-	"github.com/kdevar/basket-products/const"
 )
 
 type LivePriceFilter struct {

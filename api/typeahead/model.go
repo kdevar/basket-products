@@ -14,4 +14,3 @@ type SuggestionResponse struct {
 	ErrorCode interface{} `json:"errorCode"`
 	Message   interface{} `json:"message"`
 }
-

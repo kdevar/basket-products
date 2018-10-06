@@ -2,18 +2,18 @@ package products
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
 	"strconv"
-	"github.com/kdevar/basket-products/util"
 )
 
 type EstimatedPriceFilter struct {
-	ProductId       string
-	ChainId         []string
-	MetroAreaId     string
-	CityId          string
-	ZipCodeId       string
-	Location        *elastic.GeoPoint
+	ProductId   string
+	ChainId     []string
+	MetroAreaId string
+	CityId      string
+	ZipCodeId   string
+	Location    *elastic.GeoPoint
 }
 
 func (filter *EstimatedPriceFilter) GetLatLongString() string {

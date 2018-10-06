@@ -1,20 +1,20 @@
 package typeahead
 
 import (
+	"encoding/json"
 	"github.com/kdevar/basket-products/config"
-	"net/http"
 	"github.com/kdevar/basket-products/errors"
 	"io/ioutil"
-	"encoding/json"
+	"net/http"
 )
 
 type TypeaheadServiceImpl struct {
 	Config *config.Config
 }
 
-func (svc *TypeaheadServiceImpl) GetSuggestedProducts(filter Filter) ([]Suggestions,*errors.ApiError){
+func (svc *TypeaheadServiceImpl) GetSuggestedProducts(filter Filter) ([]Suggestions, *errors.ApiError) {
 	client := &http.Client{}
-	req, err := http.NewRequest("GET", svc.Config.BasketBaseApiPath + svc.Config.TypeAheadContextPath, nil)
+	req, err := http.NewRequest("GET", svc.Config.BasketBaseApiPath+svc.Config.TypeAheadContextPath, nil)
 
 	if err != nil {
 		return nil, errors.ServerError(err)
@@ -30,7 +30,7 @@ func (svc *TypeaheadServiceImpl) GetSuggestedProducts(filter Filter) ([]Suggesti
 	defer resp.Body.Close()
 
 	if err != nil {
-		return nil,errors.ServerError(err)
+		return nil, errors.ServerError(err)
 	}
 
 	body, _ := ioutil.ReadAll(resp.Body)

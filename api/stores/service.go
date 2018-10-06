@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/kdevar/basket-products/const"
 	"github.com/kdevar/basket-products/errors"
 	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
-	"github.com/kdevar/basket-products/const"
 )
 
 type storesServiceImpl struct {

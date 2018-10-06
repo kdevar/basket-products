@@ -5,17 +5,17 @@ import (
 	"strconv"
 )
 
-func ConvertSToInterface(sarr []string) []interface{} {
-	s := make([]interface{}, len(sarr))
-	for i, v := range sarr {
+func ConvertStringToInterface(sArr []string) []interface{} {
+	s := make([]interface{}, len(sArr))
+	for i, v := range sArr {
 		s[i] = v
 	}
 	return s
 }
 
-func ConvertIToInterface(sarr []int) []interface{} {
-	s := make([]interface{}, len(sarr))
-	for i, v := range sarr {
+func ConvertIntToInterface(iArr []int) []interface{} {
+	s := make([]interface{}, len(iArr))
+	for i, v := range iArr {
 		s[i] = v
 	}
 	return s

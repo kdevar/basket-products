@@ -2,11 +2,13 @@ package area
 
 import "github.com/kdevar/basket-products/api/stores"
 
+type Location struct {
+	Longitude float64 `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+}
+
 type Area struct {
-	Location struct {
-		Longitude float64 `json:"longitude"`
-		Latitude  float64 `json:"latitude"`
-	} `json:"location"`
+	Location      Location                `json:"location"`
 	PostalCode    string                  `json:"postalCode"`
 	PostalCodeID  int                     `json:"postalCodeId"`
 	CityID        int                     `json:"cityId"`

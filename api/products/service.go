@@ -26,7 +26,7 @@ func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFi
 	queries = append(queries, priceStatusFilter, productStatusFilter)
 
 	if len(filter.ChainId) > 0 {
-		s := util.ConvertSToInterface(filter.ChainId)
+		s := util.ConvertStringToInterface(filter.ChainId)
 		chainIdTermQuery := elastic.NewTermsQuery("chainId", s...)
 		queries = append(queries, chainIdTermQuery)
 	}
@@ -157,7 +157,7 @@ func (svc *productServiceImpl) SearchProducts(filter SearchFilter) ([]Product, *
 	}
 
 	if filter.productIds != nil {
-		s := util.ConvertIToInterface(filter.productIds)
+		s := util.ConvertIntToInterface(filter.productIds)
 		productIdFilter := elastic.NewTermsQuery(_const.PRODUCTIDFIELD, s...)
 		filters = append(filters, productIdFilter)
 	}
@@ -287,7 +287,7 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 	bq := elastic.NewBoolQuery().Filter(productIdQuery).Filter(priceStatusFilter, productStatusFilter)
 
 	if len(filter.storeIds) > 0 {
-		s := util.ConvertSToInterface(filter.storeIds)
+		s := util.ConvertStringToInterface(filter.storeIds)
 		storeIdFilter := elastic.NewTermsQuery("storeId", s...)
 		bq.Filter(storeIdFilter)
 	}
