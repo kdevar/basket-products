@@ -14,60 +14,70 @@ type storesServiceImpl struct {
 	elasticClient *elastic.Client
 }
 
-func GetLatLonString(r *elastic.GeoPoint) string {
-	return util.ConvertPointToString(r)
-}
+const (
+	distance               string = "25mi"
+	scale                  string = "3mi"
+	boost                  string = "REPLACE"
+	maxscoresubaggregation string = "max-score"
+	tophitsubaggregation   string = "top-hits"
+	chainsaggregation      string = "chains"
+)
 
 func (svc *storesServiceImpl) GetStoresForLocation(point *elastic.GeoPoint) ([]Store, *errors.ApiError) {
 
-	origin := GetLatLonString(point)
+	origin := util.ConvertGeoPointToString(point)
 
 	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
 	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
 
 	geoQuery := elastic.
-		NewGeoDistanceQuery("location").
+		NewGeoDistanceQuery(_const.LOCATIONFIELD).
 		GeoPoint(point).
-		Distance("25mi")
+		Distance(distance)
 
 	boolQuery := elastic.NewBoolQuery().Must(geoQuery, productStatusFilter, priceStatusFilter)
 
 	expDecay := elastic.
 		NewExponentialDecayFunction().
-		FieldName("location").
-		Scale("3mi").
+		FieldName(_const.LOCATIONFIELD).
+		Scale(scale).
 		Origin(origin)
 
 	funScoreQuery := elastic.
 		NewFunctionScoreQuery().
 		Query(boolQuery).
-		BoostMode("REPLACE").
+		BoostMode(boost).
 		AddScoreFunc(expDecay)
 
-	a := elastic.
+	distanceSort := elastic.NewGeoDistanceSort(_const.LOCATIONFIELD).Point(point.Lat, point.Lon).Asc()
+
+	chainAgg := elastic.
 		NewTermsAggregation().
-		Field("chainId").
-		Order("max-score", false).
+		Field(_const.CHAINIDFIELD).
+		Order(maxscoresubaggregation, false).
 		Size(25).
-		SubAggregation("max-score", elastic.NewMaxAggregation().Script(elastic.NewScript("_score"))).
-		SubAggregation("top-hits", elastic.NewTopHitsAggregation().Size(1).SortBy(
-			elastic.NewGeoDistanceSort("location").Point(point.Lat, point.Lon).Asc()))
+		SubAggregation(
+			maxscoresubaggregation,
+			elastic.NewMaxAggregation().Script(elastic.NewScript("_score"))).
+		SubAggregation(
+			tophitsubaggregation,
+			elastic.NewTopHitsAggregation().Size(1).SortBy(distanceSort))
 
 	result, err := svc.elasticClient.
-		Search("prices").
+		Search(_const.PROUCTPRICEINDEX).
 		Query(funScoreQuery).
-		Aggregation("chains", a).
+		Aggregation(chainsaggregation, chainAgg).
 		Do(context.Background())
 
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	groups, _ := result.Aggregations.Terms("chains")
+	groups, _ := result.Aggregations.Terms(chainsaggregation)
 	var store Store
 	var stores []Store
 	for _, b := range groups.Buckets {
-		ts, _ := b.Aggregations.TopHits("top-hits")
+		ts, _ := b.Aggregations.TopHits(tophitsubaggregation)
 		for _, hit := range ts.Hits.Hits {
 			json.Unmarshal(*hit.Source, &store)
 			stores = append(stores, store)

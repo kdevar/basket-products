@@ -32,9 +32,9 @@ func RunServer(server api.Server) {
 }
 
 func main() {
-	ctr := CreateContainer()
+	container := CreateContainer()
 
-	err := ctr.Invoke(RunServer)
+	err := container.Invoke(RunServer)
 
 	if err != nil {
 		panic(err)

@@ -2,7 +2,6 @@ package errors
 
 import (
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +10,7 @@ type WithError func(context *gin.Context) *ApiError
 func (f WithError) Handle(context *gin.Context) {
 	err := f(context)
 	if err != nil {
-		context.AbortWithError(err.HttpCode, err)
+		context.AbortWithStatusJSON(err.HttpCode, err)
 	}
 }
 
@@ -34,10 +33,12 @@ func NotFoundError(message string) *ApiError {
 }
 
 func ServerError(err error) *ApiError {
-	fmt.Println(err)
+
 	return &ApiError{
 		err,
 		err.Error(),
 		500,
 	}
+
+
 }

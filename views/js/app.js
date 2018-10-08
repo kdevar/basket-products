@@ -9,12 +9,14 @@ import SearchIcon from '@material-ui/icons/Search';
 import Typeahead from './typeahead';
 import Products from './products';
 import Grid from '@material-ui/core/Grid';
-import Location from './location'
+import Location from './location';
+import { fade } from '@material-ui/core/styles/colorManipulator';
 
 const styles = theme => ({
     root: {
         display: 'flex',
     },
+
     search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
@@ -30,6 +32,7 @@ const styles = theme => ({
             width: 'auto',
         },
     },
+
     searchIcon: {
         width: theme.spacing.unit * 9,
         height: '100%',
@@ -63,14 +66,6 @@ const styles = theme => ({
         transition: theme.transitions.create(['width', 'margin'], {
             easing: theme.transitions.easing.sharp,
             duration: theme.transitions.duration.leavingScreen,
-        }),
-    },
-    appBarShift: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
         }),
     },
     appBarSpacer: theme.mixins.toolbar,
@@ -140,6 +135,7 @@ class Dashboard extends React.Component {
         if (!suggestion || !suggestion.name) {
             return;
         }
+
         return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId=" + suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId=" + suggestion.id : ""}&category=${suggestion.category || ""}`, {
             headers: {
                 "latitude": this.state.latitude,
@@ -159,7 +155,7 @@ class Dashboard extends React.Component {
                 <div className={classes.root}>
                     <AppBar
                         position="absolute"
-                        className={classNames(classes.appBar, this.state.open && classes.appBarShift)}>
+                        className={classes.AppBar}>
                         <Toolbar disableGutters={true}>
                             <Grid container spacing={24}>
                                 <Grid item xs={12}>
@@ -186,7 +182,9 @@ class Dashboard extends React.Component {
                     </AppBar>
 
                     <main className={classes.content}>
+
                         <div className={classes.appBarSpacer}/>
+
                         <Grid container spacing={24}>
                             <Grid item xs={9}>
                                 <Products getStores={() => this.state.location.stores}
@@ -194,13 +192,11 @@ class Dashboard extends React.Component {
                                           getChainsQuery={() => getChainsAsUrlParams(this.state.location.chains)}
                                           getLatitude={() => this.state.latitude}
                                           getLongitude={() => this.state.longitude}
-                                          getProductData={this.getProductData.bind(this)}
                                           getLocationData={() => this.state.location}
                                           tileData={this.state.response}/>
                             </Grid>
                             <Grid item xs={3}>
-                                <Location loading={this.state.loadingLocation}
-                                          area={this.state.location}
+                                <Location loading={this.state.loadingLocation} area={this.state.location}
                                           onLocationChange={this.fetchLocationDetails.bind(this)}/>
                             </Grid>
                         </Grid>

@@ -1,7 +1,7 @@
 module.exports = {
     entry: './index.js',
     devtool: 'sourcemap',
-    watch: true,
+    watch: false,
     output: {
         path: __dirname + '/dist',
         publicPath: '/',
