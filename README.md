@@ -1,18 +1,22 @@
 # Estimation Test Utility
+A simple utility to investigate whether search time price estimation can serve as an adequate replacement for precomputed estimated values.
 
-## Run Locally
+The question we are trying to answer is if there are simpler way to provide synthetic prices values when no actual prices are available
+## Local Development
+You will need to install golang, node, and yarn to be able to build and run the project.
 
-### Install Golang
+*You will need to VPN'd inorder to reach the elastic search instance.  This might change in the future.*
+#### Install Golang
 [Official installation guidlines](https://golang.org/dl/)
 
-### Install Node & Yarn
+#### Install Node & Yarn
 Brew install of yarn will install both yarn & node
 
 ```bash
 brew install yarn
 ```
 
-### Get the code
+#### Get the code
 With a standard go installation your go workspace is generally ~/go
 ```bash
 cd $HOME/go
@@ -31,7 +35,7 @@ cd src/github.com/kdevar
 git clone https://github.com/kdevar/basket-products.git 
 ```
 
-### Build and Run Code
+#### Build and Run Code
 Switch to the right directory
 ```bash
 cd $HOME/go/src/github.com/kdevar/basket-products
