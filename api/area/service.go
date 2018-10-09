@@ -8,7 +8,6 @@ import (
 	"github.com/kdevar/basket-products/config"
 	"github.com/kdevar/basket-products/const"
 	"github.com/kdevar/basket-products/errors"
-	"github.com/olivere/elastic"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -19,12 +18,13 @@ type areaServiceImpl struct {
 	storeService stores.StoreService
 }
 
-func (svc *areaServiceImpl) GetAreaInformation(point elastic.GeoPoint) (*Area, *errors.ApiError) {
+//TODO fix the error handling here
+func (svc *areaServiceImpl) GetAreaInformation(filter AreaFilter) (*Area, *errors.ApiError) {
 	const CONTENTTYPE string = "application/json"
 
 	jsonData := []map[string]float64{{
-		_const.LATITUDEFIELD:  point.Lat,
-		_const.LONGITUDEFIELD: point.Lon,
+		_const.LATITUDEFIELD:  filter.point.Lat,
+		_const.LONGITUDEFIELD: filter.point.Lon,
 	}}
 	jsonValue, _ := json.Marshal(jsonData)
 
@@ -37,7 +37,7 @@ func (svc *areaServiceImpl) GetAreaInformation(point elastic.GeoPoint) (*Area, *
 		return nil, errors.ServerError(err)
 	}
 
-	s, _ := svc.storeService.GetStoresForLocation(&point)
+	s, _ := svc.storeService.GetStoresForLocation(filter.point)
 	chains := make(map[string]stores.Chain)
 
 	for _, store := range s {

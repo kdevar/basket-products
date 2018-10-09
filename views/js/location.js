@@ -11,6 +11,7 @@ import Divider from '@material-ui/core/Divider';
 import TextField from '@material-ui/core/TextField';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+//TODO: configure this somehow
 Geocode.setApiKey("AIzaSyByRxUnUyA9RKpU2FOuOtWkESHgf693xdo");
 
 Geocode.enableDebug();
@@ -122,6 +123,4 @@ class Location extends React.Component {
         );
     }
 }
-
-
 export default withStyles(styles)(Location);

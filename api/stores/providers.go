@@ -10,7 +10,7 @@ type StoreService interface {
 	GetChainsForLocation(point *elastic.GeoPoint) ([]Chain, *errors.ApiError)
 }
 
-func NewStoreService(e *elastic.Client) *storesServiceImpl {
+func NewStoreService(e *elastic.Client) StoreService {
 	return &storesServiceImpl{
 		elasticClient: e,
 	}

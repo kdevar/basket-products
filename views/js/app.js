@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -9,12 +8,14 @@ import SearchIcon from '@material-ui/icons/Search';
 import Typeahead from './typeahead';
 import Products from './products';
 import Grid from '@material-ui/core/Grid';
-import Location from './location'
+import Location from './location';
+import {fade} from '@material-ui/core/styles/colorManipulator';
 
 const styles = theme => ({
     root: {
         display: 'flex',
     },
+
     search: {
         position: 'relative',
         borderRadius: theme.shape.borderRadius,
@@ -30,6 +31,7 @@ const styles = theme => ({
             width: 'auto',
         },
     },
+
     searchIcon: {
         width: theme.spacing.unit * 9,
         height: '100%',
@@ -65,14 +67,6 @@ const styles = theme => ({
             duration: theme.transitions.duration.leavingScreen,
         }),
     },
-    appBarShift: {
-        marginLeft: drawerWidth,
-        width: `calc(100% - ${drawerWidth}px)`,
-        transition: theme.transitions.create(['width', 'margin'], {
-            easing: theme.transitions.easing.sharp,
-            duration: theme.transitions.duration.enteringScreen,
-        }),
-    },
     appBarSpacer: theme.mixins.toolbar,
     content: {
         flexGrow: 1,
@@ -83,13 +77,6 @@ const styles = theme => ({
     }
 });
 
-const getChainsAsUrlParams = (chains) => {
-    return Object.keys(chains).map(key => `chainId=${chains[key].ChainID}`).join("&")
-}
-
-const getStoresAsUrlParams = (stores) => {
-    return stores.map(store => `storeId=${store.StoreID}`).join("&")
-}
 
 class Dashboard extends React.Component {
     state = {
@@ -131,6 +118,10 @@ class Dashboard extends React.Component {
         })
     }
 
+    getSuggestionTypeQueryParam() {
+
+    }
+
     fetchItems(s) {
         if (s) {
             this.setState({suggestion: s})
@@ -140,6 +131,7 @@ class Dashboard extends React.Component {
         if (!suggestion || !suggestion.name) {
             return;
         }
+
         return fetch(`/api/basket-products/?keyword=${suggestion.name}${suggestion.type === "Type" ? "&typeId=" + suggestion.id : ""}${suggestion.type === "Brand" ? "&brandId=" + suggestion.id : ""}&category=${suggestion.category || ""}`, {
             headers: {
                 "latitude": this.state.latitude,
@@ -159,7 +151,7 @@ class Dashboard extends React.Component {
                 <div className={classes.root}>
                     <AppBar
                         position="absolute"
-                        className={classNames(classes.appBar, this.state.open && classes.appBarShift)}>
+                        className={classes.AppBar}>
                         <Toolbar disableGutters={true}>
                             <Grid container spacing={24}>
                                 <Grid item xs={12}>
@@ -167,7 +159,6 @@ class Dashboard extends React.Component {
                                         <div className={classes.searchIcon}>
                                             <SearchIcon/>
                                         </div>
-
                                         <Typeahead
                                             latitude={this.state.latitude}
                                             longitude={this.state.longitude}
@@ -181,7 +172,6 @@ class Dashboard extends React.Component {
                                     </div>
                                 </Grid>
                             </Grid>
-
                         </Toolbar>
                     </AppBar>
 
@@ -190,13 +180,11 @@ class Dashboard extends React.Component {
                         <Grid container spacing={24}>
                             <Grid item xs={9}>
                                 <Products getStores={() => this.state.location.stores}
-                                          getStoresQuery={() => getStoresAsUrlParams(this.state.location.stores)}
-                                          getChainsQuery={() => getChainsAsUrlParams(this.state.location.chains)}
+                                          getChains={() => this.state.location.chains}
                                           getLatitude={() => this.state.latitude}
                                           getLongitude={() => this.state.longitude}
-                                          getProductData={this.getProductData.bind(this)}
                                           getLocationData={() => this.state.location}
-                                          tileData={this.state.response}/>
+                                          rowData={this.state.response}/>
                             </Grid>
                             <Grid item xs={3}>
                                 <Location loading={this.state.loadingLocation}

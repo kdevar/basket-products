@@ -20,9 +20,9 @@ func (e *Env) String() string {
 }
 
 const (
-	DEV  Env = "dev"
-	TEST Env = "test"
-	PROD Env = "prod"
+	DEVENV  Env = "dev"
+	TESTENV Env = "test"
+	PRODENV Env = "prod"
 )
 
 type Config struct {
@@ -31,6 +31,7 @@ type Config struct {
 	TypeAheadContextPath string `yaml:"TypeAheadContextPath"`
 	AreaContextPath      string `yaml:"AreaContextPath"`
 	TypeAheadToken       string `yaml:"TypeAheadToken"`
+	Env                  Env    `yaml:"Env"`
 }
 
 type EnvConfig struct {
@@ -41,11 +42,11 @@ type EnvConfig struct {
 
 func (ec *EnvConfig) GetConfig(e Env) Config {
 	switch e {
-	case DEV:
+	case DEVENV:
 		return ec.Dev
-	case TEST:
+	case TESTENV:
 		return ec.Test
-	case PROD:
+	case PRODENV:
 		return ec.Prod
 	default:
 		return ec.Dev
@@ -68,15 +69,18 @@ func NewConfig() *Config {
 	err = yaml.Unmarshal(yamlFile, &envConfig)
 
 	if err != nil {
-		log.Printf("yamlFile unmarshal err   #%v ", err)
+		log.Printf("yamlFile unmarshal err   #%v \n", err)
 	}
 
 	currentConfig := envConfig.GetConfig(env)
+
+	log.Printf("Config constructed env=%v config=%v \n", env, currentConfig)
 
 	return &currentConfig
 }
 
 func NewElasticClient(c *Config) *elastic.Client {
 	client, _ := elastic.NewSimpleClient(elastic.SetURL(c.ReindexedClusterPath))
+	log.Println("Elastic Client constructed")
 	return client
 }

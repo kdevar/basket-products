@@ -2,9 +2,10 @@ package products
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kdevar/basket-products/const"
 	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
-	"strconv"
+	"strings"
 )
 
 type EstimatedPriceFilter struct {
@@ -17,41 +18,31 @@ type EstimatedPriceFilter struct {
 }
 
 func (filter *EstimatedPriceFilter) GetLatLongString() string {
-	return util.ConvertPointToString(filter.Location)
+	return util.ConvertGeoPointToString(filter.Location)
 }
 
 func (filter *EstimatedPriceFilter) Transform(c *gin.Context) {
-	cityId, ok := c.GetQuery("cityId")
 
-	if ok {
+	if cityId, ok := c.GetQuery(_const.CITYIDFIELD); ok {
 		filter.CityId = cityId
 	}
 
-	chainIds, ok := c.GetQueryArray("chainId")
-
-	if ok {
-		filter.ChainId = chainIds
+	if chainIds, ok := c.GetQuery(_const.CHAINIDFIELD); ok {
+		filter.ChainId = strings.Split(chainIds, ",")
 	}
 
-	metroAreaId, ok := c.GetQuery("metroAreaId")
-
-	if ok {
+	if metroAreaId, ok := c.GetQuery(_const.METROAREAIDFIELD); ok {
 		filter.MetroAreaId = metroAreaId
 	}
 
-	zipCodeId, ok := c.GetQuery("zipCodeId")
-
-	if ok {
+	if zipCodeId, ok := c.GetQuery(_const.ZIPIDFIELD); ok {
 		filter.ZipCodeId = zipCodeId
 	}
 
-	latitude, laterr := strconv.ParseFloat(c.GetHeader("latitude"), 64)
-	longitude, lonerr := strconv.ParseFloat(c.GetHeader("longitude"), 64)
-
-	if laterr == nil && lonerr == nil {
-		filter.Location = &elastic.GeoPoint{Lat: latitude, Lon: longitude}
+	if point, ok := util.ConvertHeadersToGeoPoint(c); ok {
+		filter.Location = point
 	}
 
-	productId := c.Params.ByName("productid")
+	productId := c.Params.ByName(strings.ToLower(_const.PRODUCTIDFIELD))
 	filter.ProductId = productId
 }

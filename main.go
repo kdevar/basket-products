@@ -7,26 +7,36 @@ import (
 	"github.com/kdevar/basket-products/api/stores"
 	"github.com/kdevar/basket-products/api/typeahead"
 	"github.com/kdevar/basket-products/config"
+	"go.uber.org/dig"
 )
 
-func main() {
-	//manual wiring of the object graph
-	cfg := config.NewConfig()
-	elasticClient := config.NewElasticClient(cfg)
-	productsService := products.NewProductService(elasticClient)
-	productController := products.NewProductController(productsService)
-	typeaheadService := typeahead.NewTypeaheadService(cfg)
-	typeaheadController := typeahead.NewTypeaheadController(typeaheadService)
-	storeService := stores.NewStoreService(elasticClient)
-	areaService := area.NewAreaService(cfg, storeService)
-	areaController := area.NewAreaController(areaService)
+func CreateContainer() *dig.Container {
+	container := dig.New()
 
-	server := api.NewServer(api.ServerParams{
-		Config:    cfg,
-		Products:  productController,
-		Typeahead: typeaheadController,
-		Area:      areaController,
-	})
+	container.Provide(config.NewConfig)
+	container.Provide(config.NewElasticClient)
+	container.Provide(products.NewProductService)
+	container.Provide(products.NewProductController)
+	container.Provide(typeahead.NewTypeaheadController)
+	container.Provide(typeahead.NewTypeaheadService)
+	container.Provide(stores.NewStoreService)
+	container.Provide(area.NewAreaService)
+	container.Provide(area.NewAreaController)
+	container.Provide(api.NewServer)
 
+	return container
+}
+
+func RunServer(server api.Server) {
 	server.Run()
+}
+
+func main() {
+	container := CreateContainer()
+
+	err := container.Invoke(RunServer)
+
+	if err != nil {
+		panic(err)
+	}
 }

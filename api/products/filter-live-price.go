@@ -3,8 +3,9 @@ package products
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kdevar/basket-products/const"
+	"github.com/kdevar/basket-products/util"
 	"github.com/olivere/elastic"
-	"strconv"
+	"strings"
 )
 
 type LivePriceFilter struct {
@@ -14,16 +15,13 @@ type LivePriceFilter struct {
 }
 
 func (filter *LivePriceFilter) transform(c *gin.Context) {
-	latitude, laterr := strconv.ParseFloat(c.GetHeader(_const.LATITUDEFIELD), 64)
-	longitude, longerr := strconv.ParseFloat(c.GetHeader(_const.LONGITUDEFIELD), 64)
-
-	productId := c.Params.ByName(_const.PRODUCTIDFIELD)
-	storeIds, _ := c.GetQueryArray(_const.STOREIDFIELD)
-
-	filter.productId = productId
-	filter.storeIds = storeIds
-
-	if laterr == nil && longerr == nil {
-		filter.location = &elastic.GeoPoint{Lat: latitude, Lon: longitude}
+	if point, ok := util.ConvertHeadersToGeoPoint(c); ok {
+		filter.location = point
 	}
+
+	productId := c.Params.ByName(strings.ToLower(_const.PRODUCTIDFIELD))
+	storeIds, _ := c.GetQuery(_const.STOREIDFIELD)
+	filter.productId = productId
+	filter.storeIds = strings.Split(storeIds, ",")
+
 }

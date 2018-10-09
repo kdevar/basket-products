@@ -8,6 +8,7 @@ import (
 	"github.com/kdevar/basket-products/api/typeahead"
 	"github.com/kdevar/basket-products/config"
 	"github.com/kdevar/basket-products/errors"
+	"go.uber.org/dig"
 )
 
 type AppHandlerFunc func(*gin.Context) *errors.ApiError
@@ -17,6 +18,7 @@ func withErrorHandling(fn AppHandlerFunc) gin.HandlerFunc {
 }
 
 type ServerParams struct {
+	dig.In
 	Config    *config.Config
 	Area      *area.AreaController
 	Products  *products.ProductsController
@@ -28,7 +30,17 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+
+	if s.Config.Env == config.DEVENV {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	router := gin.New()
+
+	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
+
 	router.Use(static.Serve("/", static.LocalFile("./views", true)))
 
 	api := router.Group("/api")

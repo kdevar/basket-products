@@ -11,7 +11,7 @@ type ProductService interface {
 	SearchProducts(filter SearchFilter) ([]Product, *errors.ApiError)
 }
 
-func NewProductService(e *elastic.Client) *productServiceImpl {
+func NewProductService(e *elastic.Client) ProductService {
 	return &productServiceImpl{
 		elasticClient: e,
 	}
