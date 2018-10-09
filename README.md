@@ -38,7 +38,7 @@ cd src/github.com/kdevar
 ```
 
 ```bash
-git clone https://github.com/kdevar/basket-products.git 
+git clone https://<your-username>@github.com/kdevar/basket-products.git 
 ```
 
 #### Build and Run Code
