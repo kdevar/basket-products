@@ -24,6 +24,10 @@ mkdir src/github.com/kdevar
 ```
 
 ```bash
+cd src/github.com/kdevar
+```
+
+```bash
 git clone https://github.com/kdevar/basket-products.git 
 ```
 

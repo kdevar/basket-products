@@ -5,23 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="83f9c62f-9c2e-42c8-b2d5-e58e33d78576" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/api.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/api.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/area/service.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/area/service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/products/filter-estimated-price.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/products/filter-estimated-price.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/api/products/filter-live-price.go" beforeDir="false" afterPath="$PROJECT_DIR$/api/products/filter-live-price.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config/config.go" beforeDir="false" afterPath="$PROJECT_DIR$/config/config.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/errors/error.go" beforeDir="false" afterPath="$PROJECT_DIR$/errors/error.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/dist/app.min.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/dist/app.min.js.map" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/js/SimpleTable.js" beforeDir="false" afterPath="$PROJECT_DIR$/views/js/product-details.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/js/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/views/js/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/js/location.js" beforeDir="false" afterPath="$PROJECT_DIR$/views/js/location.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/js/products.js" beforeDir="false" afterPath="$PROJECT_DIR$/views/js/products.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/views/yarn.lock" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -63,8 +47,8 @@
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
             <state split_layout="SPLIT">
-              <first_editor relative-caret-position="624">
-                <caret line="39" column="78" selection-start-line="39" selection-start-column="78" selection-end-line="39" selection-end-column="78" />
+              <first_editor relative-caret-position="349">
+                <caret line="23" column="3" lean-forward="true" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
               </first_editor>
               <second_editor />
             </state>
@@ -344,6 +328,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="72" y="23" width="1247" height="877" extended-state="0" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="7" />
       <window_info anchor="bottom" id="Event Log" order="8" sideWeight="0.3055333" weight="0.32876712" />
@@ -829,8 +814,8 @@
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
         <state split_layout="SPLIT">
-          <first_editor relative-caret-position="624">
-            <caret line="39" column="78" selection-start-line="39" selection-start-column="78" selection-end-line="39" selection-end-column="78" />
+          <first_editor relative-caret-position="349">
+            <caret line="23" column="3" lean-forward="true" selection-start-line="23" selection-start-column="3" selection-end-line="23" selection-end-column="3" />
           </first_editor>
           <second_editor />
         </state>
