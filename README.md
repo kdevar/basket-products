@@ -51,6 +51,6 @@ Run make
 make
 ```
 
-If everything has gone well, you should find the app at [http://localhost:8080](http://localhost:8080)
+If everything has gone well, you should find the app at [http://localhost:8080](http://localhost:8080) *(remember to turn on the VPN)*
 
 
