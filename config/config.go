@@ -20,9 +20,9 @@ func (e *Env) String() string {
 }
 
 const (
-	DEV  Env = "dev"
-	TEST Env = "test"
-	PROD Env = "prod"
+	DEVENV  Env = "dev"
+	TESTENV Env = "test"
+	PRODENV Env = "prod"
 )
 
 type Config struct {
@@ -31,7 +31,7 @@ type Config struct {
 	TypeAheadContextPath string `yaml:"TypeAheadContextPath"`
 	AreaContextPath      string `yaml:"AreaContextPath"`
 	TypeAheadToken       string `yaml:"TypeAheadToken"`
-	Env                  string `yaml:"Env"`
+	Env                  Env    `yaml:"Env"`
 }
 
 type EnvConfig struct {
@@ -42,11 +42,11 @@ type EnvConfig struct {
 
 func (ec *EnvConfig) GetConfig(e Env) Config {
 	switch e {
-	case DEV:
+	case DEVENV:
 		return ec.Dev
-	case TEST:
+	case TESTENV:
 		return ec.Test
-	case PROD:
+	case PRODENV:
 		return ec.Prod
 	default:
 		return ec.Dev

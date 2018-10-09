@@ -18,9 +18,9 @@ type areaServiceImpl struct {
 	storeService stores.StoreService
 }
 
-type test struct {}
+type test struct{}
 
-func (t *test) Error() string{
+func (t *test) Error() string {
 	return "my error"
 }
 
@@ -47,12 +47,6 @@ func (svc *areaServiceImpl) GetAreaInformation(filter AreaFilter) (*Area, *error
 
 	for _, store := range s {
 		chains[strconv.Itoa(store.ChainID)] = store.Chain
-	}
-
-
-
-	if true {
-		return nil,errors.ServerError(&test{})
 	}
 
 	body, readErr := ioutil.ReadAll(response.Body)

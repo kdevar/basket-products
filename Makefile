@@ -1,11 +1,13 @@
 env?=dev
 
+all: serve
+
 build-go:
 	go build
 
 build-ui:
 	cd ./views;\
-	yarn build
+	yarn;yarn build;\
 
 build-all: build-go build-ui
 

@@ -30,7 +30,16 @@ type Server struct {
 }
 
 func (s *Server) Run() {
-	router := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+
+	if s.Config.Env == config.DEVENV {
+		gin.SetMode(gin.DebugMode)
+	}
+
+	router := gin.New()
+
+	router.Use(gin.Recovery())
+	router.Use(gin.Logger())
 
 	router.Use(static.Serve("/", static.LocalFile("./views", true)))
 

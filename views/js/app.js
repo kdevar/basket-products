@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import classNames from 'classnames';
 import {withStyles} from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import AppBar from '@material-ui/core/AppBar';
@@ -10,7 +9,7 @@ import Typeahead from './typeahead';
 import Products from './products';
 import Grid from '@material-ui/core/Grid';
 import Location from './location';
-import { fade } from '@material-ui/core/styles/colorManipulator';
+import {fade} from '@material-ui/core/styles/colorManipulator';
 
 const styles = theme => ({
     root: {
@@ -78,13 +77,6 @@ const styles = theme => ({
     }
 });
 
-const getChainsAsUrlParams = (chains) => {
-    return Object.keys(chains).map(key => `chainId=${chains[key].ChainID}`).join("&")
-}
-
-const getStoresAsUrlParams = (stores) => {
-    return stores.map(store => `storeId=${store.StoreID}`).join("&")
-}
 
 class Dashboard extends React.Component {
     state = {
@@ -126,6 +118,10 @@ class Dashboard extends React.Component {
         })
     }
 
+    getSuggestionTypeQueryParam() {
+
+    }
+
     fetchItems(s) {
         if (s) {
             this.setState({suggestion: s})
@@ -163,7 +159,6 @@ class Dashboard extends React.Component {
                                         <div className={classes.searchIcon}>
                                             <SearchIcon/>
                                         </div>
-
                                         <Typeahead
                                             latitude={this.state.latitude}
                                             longitude={this.state.longitude}
@@ -177,26 +172,23 @@ class Dashboard extends React.Component {
                                     </div>
                                 </Grid>
                             </Grid>
-
                         </Toolbar>
                     </AppBar>
 
                     <main className={classes.content}>
-
                         <div className={classes.appBarSpacer}/>
-
                         <Grid container spacing={24}>
                             <Grid item xs={9}>
                                 <Products getStores={() => this.state.location.stores}
-                                          getStoresQuery={() => getStoresAsUrlParams(this.state.location.stores)}
-                                          getChainsQuery={() => getChainsAsUrlParams(this.state.location.chains)}
+                                          getChains={() => this.state.location.chains}
                                           getLatitude={() => this.state.latitude}
                                           getLongitude={() => this.state.longitude}
                                           getLocationData={() => this.state.location}
-                                          tileData={this.state.response}/>
+                                          rowData={this.state.response}/>
                             </Grid>
                             <Grid item xs={3}>
-                                <Location loading={this.state.loadingLocation} area={this.state.location}
+                                <Location loading={this.state.loadingLocation}
+                                          area={this.state.location}
                                           onLocationChange={this.fetchLocationDetails.bind(this)}/>
                             </Grid>
                         </Grid>

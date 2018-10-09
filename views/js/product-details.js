@@ -19,8 +19,6 @@ const styles = {
     },
 };
 
-let id = 0;
-
 function render(min, max) {
     if (!min && !max) return "-";
     if (min === max) {
@@ -31,8 +29,13 @@ function render(min, max) {
 
 function renderUserPrices(props) {
     const {classes} = props;
-    if (!props.data || props.data.length === 0) {
-        return (<div><Typography variant={"caption"}>No User or Cluster Prices available</Typography><Divider/></div>);
+    if (!props.liveData || props.liveData.length === 0) {
+        return (
+            <div>
+                <Typography variant={"caption"}>No User or Cluster Prices available</Typography>
+                <Divider/>
+            </div>
+        );
     }
     return (
         <Table className={classes.table}>
@@ -45,7 +48,7 @@ function renderUserPrices(props) {
                 </TableRow>
             </TableHead>
             <TableBody>
-                {props.data && props.data.map(price => (
+                {props.liveData && props.liveData.map(price => (
                     <TableRow>
                         <TableCell>{price.fullStoreName}</TableCell>
 
@@ -61,7 +64,12 @@ function renderUserPrices(props) {
 function renderEstimatedPrice(props) {
     const {classes} = props;
     if (!props.estimatedData || props.estimatedData.length === 0) {
-        return (<div><Typography variant={"caption"}>Unable to estimate</Typography><Divider/></div>);
+        return (
+            <div>
+                <Typography variant={"caption"}>Unable to estimate</Typography>
+                <Divider/>
+            </div>
+        );
     }
     return (
 
@@ -69,7 +77,6 @@ function renderEstimatedPrice(props) {
             <TableHead>
                 <TableRow>
                     <TableCell>Store Name</TableCell>
-
                     <TableCell numeric>City Est</TableCell>
                     <TableCell numeric>Metro Est</TableCell>
                     <TableCell numeric>Zip Est</TableCell>
@@ -88,7 +95,6 @@ function renderEstimatedPrice(props) {
                         <TableCell numeric>{render(price.FIFTYMILE.Min, price.FIFTYMILE.Max)}</TableCell>
                         <TableCell numeric>{render(price.HUNDREDMILES.Min, price.HUNDREDMILES.Max)}</TableCell>
                         <TableCell numeric>{render(price.NATIONALMILES.Min, price.NATIONALMILES.Max)}</TableCell>
-
                     </TableRow>
                 ))}
             </TableBody>
@@ -96,23 +102,23 @@ function renderEstimatedPrice(props) {
     )
 }
 
-function SimpleTable(props) {
+function ProductDetails(props) {
     const {classes} = props;
 
     return (
         <div className={classes.root}>
             <Typography variant={"subheading"}>User/Cluster Prices</Typography>
-            {renderUserPrices(props)}
+            {renderUserPrices({classes:props.classes, liveData:props.liveData})}
 
             <br/>
             <Typography variant={"subheading"}>Estimated Prices</Typography>
-            {renderEstimatedPrice(props)}
+            {renderEstimatedPrice({classes: props.classes, estimatedData: props.estimatedData})}
         </div>
     );
 }
 
-SimpleTable.propTypes = {
+ProductDetails.propTypes = {
     classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SimpleTable);
+export default withStyles(styles)(ProductDetails);

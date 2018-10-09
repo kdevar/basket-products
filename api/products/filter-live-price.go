@@ -20,9 +20,8 @@ func (filter *LivePriceFilter) transform(c *gin.Context) {
 	}
 
 	productId := c.Params.ByName(strings.ToLower(_const.PRODUCTIDFIELD))
-	storeIds, _ := c.GetQueryArray(_const.STOREIDFIELD)
-
+	storeIds, _ := c.GetQuery(_const.STOREIDFIELD)
 	filter.productId = productId
-	filter.storeIds = storeIds
+	filter.storeIds = strings.Split(storeIds, ",")
 
 }

@@ -27,8 +27,8 @@ func (filter *EstimatedPriceFilter) Transform(c *gin.Context) {
 		filter.CityId = cityId
 	}
 
-	if chainIds, ok := c.GetQueryArray(_const.CHAINIDFIELD); ok {
-		filter.ChainId = chainIds
+	if chainIds, ok := c.GetQuery(_const.CHAINIDFIELD); ok {
+		filter.ChainId = strings.Split(chainIds, ",")
 	}
 
 	if metroAreaId, ok := c.GetQuery(_const.METROAREAIDFIELD); ok {

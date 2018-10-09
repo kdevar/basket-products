@@ -40,5 +40,4 @@ func ServerError(err error) *ApiError {
 		500,
 	}
 
-
 }

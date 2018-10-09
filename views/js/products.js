@@ -6,7 +6,7 @@ import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
 import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Divider from '@material-ui/core/Divider';
-import SimpleTable from './SimpleTable';
+import ProductDetails from './product-details';
 
 const styles = theme => ({
     root: {
@@ -27,14 +27,18 @@ const styles = theme => ({
     }
 });
 
+const storeList = stores => stores.map(s => s.StoreID).join(",");
+const chainList = chains => {
+    return Object.keys(chains).map(key => chains[key].ChainID).join(",");
+}
+
 const Products = props => {
     const {classes} = props;
     return (
         <div className={classes.root}>
-            {props.tileData && props.tileData.map(tile => <StyledExpansionRow
+            {props.rowData && props.rowData.map(tile => <StyledExpansionRow
                 getStores={props.getStores}
-                getStoresQuery={props.getStoresQuery}
-                getChainsQuery={props.getChainsQuery}
+                getChains={props.getChains}
                 getLatitude={props.getLatitude}
                 getLongitude={props.getLongitude}
                 getLocationData={props.getLocationData}
@@ -55,7 +59,8 @@ class ExpansionRow extends React.Component {
     }
 
     getProductData(productRow) {
-        return fetch(`/api/basket-products/${productRow.productId}/prices?${this.props.getStoresQuery()}`, {
+        const stores = storeList(this.props.getStores());
+        return fetch(`/api/basket-products/${productRow.productId}/prices?storeId=${stores}`, {
             headers: {
                 "latitude": this.props.getLatitude(),
                 "longitude": this.props.getLongitude()
@@ -65,7 +70,8 @@ class ExpansionRow extends React.Component {
 
     getProductEstimateData(productRow) {
         const location = this.props.getLocationData();
-        return fetch(`/api/basket-products/${productRow.productId}/estimated-prices?${this.props.getChainsQuery()}&cityId=${location.cityId}&zipCodeId=${location.postalCodeId}&metroAreaId=${location.metroAreaId}`, {
+        const chains = chainList(this.props.getChains());
+        return fetch(`/api/basket-products/${productRow.productId}/estimated-prices?chainId=${chains}&cityId=${location.cityId}&zipCodeId=${location.postalCodeId}&metroAreaId=${location.metroAreaId}`, {
             headers: {
                 "latitude": this.props.getLatitude(),
                 "longitude": this.props.getLongitude()
@@ -116,26 +122,29 @@ const ExpansionDetails = props => {
     const stores = props.getStores();
     let estimatedData = [];
     if (props.estimateDetails) {
-        estimatedData = Object.keys(props.estimateDetails).map(chainId => {
+        estimatedData = Object
+            .keys(props.estimateDetails)
+            .map(chainId => {
+                const store = stores && stores.find(s => s.ChainID == chainId);
+                const storeExistsInLiveData = store && props.data && props.data.find(s => s.storeId === store.StoreID)
 
-            const store = stores && !storeExists && stores.find(s => s.ChainID == chainId);
-            const storeExists = store && props.data && props.data.find(s => s.storeId === store.StoreID)
-            if (store && !storeExists) {
-                return {
-                    ...store,
-                    ...props.estimateDetails[chainId]
+                if (store && !storeExistsInLiveData) {
+                    return {
+                        ...store,
+                        ...props.estimateDetails[chainId]
+                    }
                 }
-            }
-            return null;
 
-        }).filter(n => n);
+                return null;
+
+            }).filter(n => n);
     }
 
     return (
         <ExpansionPanelDetails className={classes.details}>
-            <SimpleTable
+            <ProductDetails
                 estimatedData={estimatedData}
-                data={props.data}/>
+                liveData={props.data}/>
         </ExpansionPanelDetails>
     )
 };
