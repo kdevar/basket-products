@@ -18,12 +18,7 @@ type areaServiceImpl struct {
 	storeService stores.StoreService
 }
 
-type test struct{}
-
-func (t *test) Error() string {
-	return "my error"
-}
-
+//TODO fix the error handling here
 func (svc *areaServiceImpl) GetAreaInformation(filter AreaFilter) (*Area, *errors.ApiError) {
 	const CONTENTTYPE string = "application/json"
 

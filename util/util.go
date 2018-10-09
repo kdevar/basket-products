@@ -42,6 +42,7 @@ func ConvertHeadersToGeoPoint(c *gin.Context) (*elastic.GeoPoint, bool) {
 	return nil, false
 }
 
+//TODO how to optionally pass in separator
 func ConvertStringToIntArr(s string) ([]int, bool) {
 	values := strings.Split(s, ",")
 	integers := []int{}

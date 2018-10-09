@@ -18,7 +18,7 @@ func (ctrl *ProductsController) GetLiveProductPrices(c *gin.Context) *errors.Api
 	products, err := ctrl.ProductService.GetLiveProductPrices(filter)
 
 	if err != nil {
-		return errors.ServerError(err)
+		return err
 	}
 
 	c.JSON(http.StatusOK, products)
@@ -34,7 +34,7 @@ func (ctrl *ProductsController) SearchProducts(c *gin.Context) *errors.ApiError 
 	products, err := ctrl.ProductService.SearchProducts(filter)
 
 	if err != nil {
-		return errors.ServerError(err)
+		return err
 	}
 
 	c.JSON(http.StatusOK, products)
@@ -49,7 +49,7 @@ func (ctrl *ProductsController) GetEstimatedProductPrices(c *gin.Context) *error
 	result, err := ctrl.ProductService.GetEstimatedProductPrices(filter)
 
 	if err != nil {
-		return errors.ServerError(err)
+		return err
 	}
 
 	c.JSON(http.StatusOK, result)

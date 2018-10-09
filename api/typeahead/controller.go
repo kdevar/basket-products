@@ -23,7 +23,7 @@ func (ctrl *TypeaheadController) GetSuggestedProducts(c *gin.Context) *errors.Ap
 	suggestions, err := ctrl.Service.GetSuggestedProducts(filter)
 
 	if err != nil {
-		return errors.ServerError(err)
+		return err
 	}
 	c.JSON(http.StatusOK, suggestions)
 

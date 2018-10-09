@@ -18,6 +18,10 @@ Brew install of yarn will install both yarn & node
 brew install yarn
 ```
 
+If you have node already installed please make sure the version is greater than 6.11.5.  Webpack will need it to be more current
+
+[Learn more about Yarn](https://yarnpkg.com/en/docs/getting-started)
+
 #### Get the code
 With a standard go installation your go workspace is generally ~/go
 ```bash

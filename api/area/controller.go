@@ -17,7 +17,7 @@ func (ctrl *AreaController) GetAreaInformation(c *gin.Context) *errors.ApiError 
 	results, err := ctrl.AreaService.GetAreaInformation(filter)
 
 	if err != nil {
-		return errors.ServerError(err)
+		return err
 	}
 
 	c.JSON(http.StatusOK, results)
