@@ -7,7 +7,9 @@ You will need to install golang, node, and yarn to be able to build and run the 
 
 *You will need to VPN'd inorder to reach the elastic search instance.  This might change in the future.*
 #### Install Golang
-[Official installation guidlines](https://golang.org/dl/)
+<a href="https://golang.org/dl/" target="_blank">Official installation guidelines</a>
+
+You could probably do through brew as well
 
 #### Install Node & Yarn
 Brew install of yarn will install both yarn & node
