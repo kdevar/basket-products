@@ -16,120 +16,49 @@ type productServiceImpl struct {
 
 func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFilter) (EstimatedPriceResponse, *errors.ApiError) {
 	ctx := context.Background()
-	queries := []elastic.Query{}
-	productIdTermQuery := elastic.NewTermQuery(_const.PRODUCTIDFIELD, filter.ProductId)
-	queries = append(queries, productIdTermQuery)
+	query := NewEstimatedQuery().
+		AddProductIdFilter(filter.ProductId).
+		AddPriceStatusFilter().
+		AddProductStatusFilter()
 
-	priceStatusFilter := elastic.NewTermsQuery(_const.PRICESTATUSFIELD, "0")
-	productStatusFilter := elastic.NewTermsQuery(_const.PRODUCTSTATUSFIELD, "0")
-
-	queries = append(queries, priceStatusFilter, productStatusFilter)
-
-	if len(filter.ChainId) > 0 {
-		s := util.ConvertStringToInterface(filter.ChainId)
-		chainIdTermQuery := elastic.NewTermsQuery("chainId", s...)
-		queries = append(queries, chainIdTermQuery)
+	if filter.ChainId != nil {
+		query.AddChainIdFilters(filter.ChainId)
 	}
 
-	gq := elastic.NewBoolQuery().Filter(queries...)
-
-	baseAggregation := elastic.NewTermsAggregation().Field(_const.CHAINIDFIELD)
-
-	ma := NewEstimateTermsAgg(_const.METROAREAIDFIELD, filter.MetroAreaId).Generate()
-
-	c := NewEstimateTermsAgg(_const.CITYIDFIELD, filter.CityId).Generate()
-
-	z := NewEstimateTermsAgg(_const.ZIPIDFIELD, filter.ZipCodeId).Generate()
-
-	a := elastic.
-		NewGeoDistanceAggregation().
-		Field(_const.LOCATIONFIELD).
-		Point(filter.GetLatLongString()).
-		Unit("miles").
-		AddRangeWithKey(string(_const.CITY), 0, 50).
-		AddRangeWithKey(string(_const.METRO), 51, 100).
-		AddRangeWithKey(string(_const.NATIONALMILES), 101, 4000)
-
-	s := elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)
-	m := elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)
-
-	a.SubAggregation(_const.MINLABEL, s)
-	a.SubAggregation(_const.MAXLABEL, m)
-
-	baseAggregation.SubAggregation(_const.GEOGRAPHICLABEL, a)
-	baseAggregation.SubAggregation(_const.METROLABEL, ma)
-	baseAggregation.SubAggregation(_const.CITYLABEL, c)
-	baseAggregation.SubAggregation(_const.ZIPLABEL, z)
+	agg := NewEstimationAggregation().
+		AddMetroAreaSubAggregation(filter.MetroAreaId).
+		AddCityIdSubAggregation(filter.CityId).
+		AddZipIdSubAggregation(filter.ZipCodeId).
+		AddGeographicRangeSubAggregation(filter.Location)
 
 	searchQuery := svc.elasticClient.
 		Search(_const.PROUCTPRICEINDEX).
-		Query(gq).
-		Aggregation(_const.CHAINLABEL, baseAggregation)
+		Query(query.GetQuery()).
+		Aggregation(_const.CHAINLABEL, agg.GetAggregation())
 
 	searchResult, err := searchQuery.Do(ctx)
 
 	if err != nil {
-		errors.ServerError(err)
+		return nil, errors.ServerError(err)
 	}
 
 	groups, _ := searchResult.Aggregations.Terms(_const.CHAINLABEL)
+
+	chainGroups := NewEstimationAggregationResultIterator(groups)
 	responses := make(EstimatedPriceResponse)
-	for _, b := range groups.Buckets {
-		chainId := ChainId(b.KeyNumber)
+	for chainGroups.Next(){
 		estimates := make(EstimatedPriceItem)
-
-		cityEstimate := &ProductEstimate{
-			Etype: _const.CITY,
-		}
-		cityBucket, _ := b.Aggregations.Terms(_const.CITYLABEL)
-		cityEstimate.transformFromTermsBucket(cityBucket)
-
-		estimates[_const.CITY] = cityEstimate
-
-		metroEstimate := &ProductEstimate{
-			Etype: _const.METRO,
-		}
-		metroBucket, _ := b.Aggregations.Terms(_const.METROLABEL)
-		metroEstimate.transformFromTermsBucket(metroBucket)
-
-		estimates[_const.METRO] = metroEstimate
-
-		zipEstimate := &ProductEstimate{
-			Etype: "ZIP",
-		}
-		zipBucket, _ := b.Aggregations.Terms(_const.ZIPLABEL)
-		zipEstimate.transformFromTermsBucket(zipBucket)
-
-		estimates[_const.ZIP] = zipEstimate
-
-		x, _ := b.Aggregations.GeoDistance(_const.GEOGRAPHICLABEL)
-
-		for _, k := range x.Buckets {
-			max, _ := k.Aggregations.Max(_const.MAXLABEL)
-			min, _ := k.Aggregations.Min(_const.MINLABEL)
-			if k.Key == string(_const.CITY) {
-				estimates[_const.FITYMILES] = &ProductEstimate{
-					Etype: _const.FITYMILES,
-					Min:   min.Value,
-					Max:   max.Value}
-			}
-			if k.Key == string(_const.METRO) {
-				estimates[_const.HUNDREDMILES] = &ProductEstimate{
-					Etype: _const.HUNDREDMILES,
-					Min:   min.Value, Max: max.Value}
-			}
-			if k.Key == string(_const.NATIONALMILES) {
-				estimates[_const.NATIONALMILES] = &ProductEstimate{
-					Etype: _const.NATIONALMILES,
-					Min:   min.Value,
-					Max:   max.Value}
-			}
-		}
-
+		chainGroup := chainGroups.Value()
+		chainId := ChainId(chainGroup.Result.KeyNumber)
+		estimates[_const.CITY] = chainGroup.GetCityEstimate()
+		estimates[_const.METRO] = chainGroup.GetMetroEstimate()
+		estimates[_const.ZIP] = chainGroup.GetZipEstimate()
+		estimates[_const.FIFTYMILES] = chainGroup.GetRangeEstimate(_const.FIFTYMILES)
+		estimates[_const.HUNDREDMILES] = chainGroup.GetRangeEstimate(_const.HUNDREDMILES)
+		estimates[_const.NATIONALMILES] = chainGroup.GetRangeEstimate(_const.NATIONALMILES)
 		responses[chainId] = estimates
 	}
 	return responses, nil
-
 }
 
 func (svc *productServiceImpl) SearchProducts(filter SearchFilter) ([]Product, *errors.ApiError) {
@@ -311,7 +240,10 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 		bq.Filter(geoLocationFilter)
 	}
 
-	fq.Query(bq).AddScoreFunc(businessValueScore).AddScoreFunc(popularityScore).AddScoreFunc(totalPricesScore)
+	fq.Query(bq).
+		AddScoreFunc(businessValueScore).
+		AddScoreFunc(popularityScore).
+		AddScoreFunc(totalPricesScore)
 
 	searchResult, err := svc.elasticClient.Search(_const.PROUCTPRICEINDEX).Query(fq).Do(ctx)
 

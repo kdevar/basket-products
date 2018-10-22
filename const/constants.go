@@ -2,11 +2,15 @@ package _const
 
 type EstimateType string
 
+func(e *EstimateType) String() string{
+	return string(*e)
+}
+
 const (
 	ZIP           EstimateType = "ZIP"
 	CITY          EstimateType = "CITY"
 	METRO         EstimateType = "METRO"
-	FITYMILES     EstimateType = "FIFTYMILE"
+	FIFTYMILES    EstimateType = "FIFTYMILE"
 	HUNDREDMILES  EstimateType = "HUNDREDMILES"
 	NATIONALMILES EstimateType = "NATIONALMILES"
 )
