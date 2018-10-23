@@ -1,36 +1,7 @@
 package _const
 
-type EstimateType string
-
-func(e *EstimateType) String() string{
-	return string(*e)
-}
-
-const (
-	ZIP           EstimateType = "ZIP"
-	CITY          EstimateType = "CITY"
-	METRO         EstimateType = "METRO"
-	FIFTYMILES    EstimateType = "FIFTYMILE"
-	HUNDREDMILES  EstimateType = "HUNDREDMILES"
-	NATIONALMILES EstimateType = "NATIONALMILES"
-)
 
 const PROUCTPRICEINDEX string = "prices"
-
-const (
-	ZIPLABEL           string = "zipcode-estimate"
-	CITYLABEL          string = "city-estimate"
-	METROLABEL         string = "metro-estimate"
-	GEOGRAPHICLABEL    string = "geographic-range-estimates"
-	CHAINLABEL         string = "chain-groups"
-	MAXLABEL           string = "maxprice"
-	MINLABEL           string = "minprice"
-	MAXFINALPRICELABEL string = "maxfinal"
-	MINFINALPRICELABEL string = "minfinal"
-	MAXLISTLABEL       string = "maxlist"
-	MINLISTLABEL       string = "minlist"
-)
-
 const (
 	LATITUDEFIELD          string = "latitude"
 	LONGITUDEFIELD         string = "longitude"

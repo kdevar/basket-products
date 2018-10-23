@@ -41,18 +41,18 @@ type EstimatedAggregationBuilder struct {
 	Agg *elastic.TermsAggregation
 }
 func (a *EstimatedAggregationBuilder) AddMetroAreaSubAggregation(metroAreaId string) *EstimatedAggregationBuilder{
-	sub := NewEstimateTermsAgg(_const.METROAREAIDFIELD, metroAreaId).Generate()
-	a.Agg.SubAggregation(_const.METROLABEL,sub)
+	sub := GeneratePriceAggregation(_const.METROAREAIDFIELD, metroAreaId)
+	a.Agg.SubAggregation(METROLABEL,sub)
 	return a
 }
 func (a *EstimatedAggregationBuilder) AddCityIdSubAggregation(cityId string) *EstimatedAggregationBuilder{
-	sub := NewEstimateTermsAgg(_const.CITYIDFIELD, cityId).Generate()
-	a.Agg.SubAggregation(_const.CITYLABEL, sub)
+	sub := GeneratePriceAggregation(_const.CITYIDFIELD, cityId)
+	a.Agg.SubAggregation(CITYLABEL, sub)
 	return a
 }
 func (a *EstimatedAggregationBuilder) AddZipIdSubAggregation(zipCodeId string) *EstimatedAggregationBuilder{
-	sub := NewEstimateTermsAgg(_const.ZIPIDFIELD, zipCodeId).Generate()
-	a.Agg.SubAggregation(_const.ZIPLABEL, sub)
+	sub := GeneratePriceAggregation(_const.ZIPIDFIELD, zipCodeId)
+	a.Agg.SubAggregation(ZIPLABEL, sub)
 	return a
 }
 func (a *EstimatedAggregationBuilder) AddGeographicRangeSubAggregation(point *elastic.GeoPoint) *EstimatedAggregationBuilder{
@@ -61,17 +61,17 @@ func (a *EstimatedAggregationBuilder) AddGeographicRangeSubAggregation(point *el
 		Field(_const.LOCATIONFIELD).
 		Point(util.ConvertGeoPointToString(point)).
 		Unit("miles").
-		AddRangeWithKey(string(_const.FIFTYMILES), 0, 50).
-		AddRangeWithKey(string(_const.HUNDREDMILES), 51, 100).
-		AddRangeWithKey(string(_const.NATIONALMILES), 101, 4000)
-	a.Agg.SubAggregation(_const.GEOGRAPHICLABEL, sub)
+		AddRangeWithKey(string(FIFTYMILES), 0, 50).
+		AddRangeWithKey(string(HUNDREDMILES), 51, 100).
+		AddRangeWithKey(string(NATIONALMILES), 101, 4000)
+	a.Agg.SubAggregation(GEOGRAPHICLABEL, sub)
 
 
 	s := elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)
 	m := elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)
 
-	sub.SubAggregation(_const.MINLABEL, s)
-	sub.SubAggregation(_const.MAXLABEL, m)
+	sub.SubAggregation(MINLABEL, s)
+	sub.SubAggregation(MAXLABEL, m)
 
 	return a
 }
@@ -89,35 +89,35 @@ type EstimationAggregationResult struct{
 }
 func (e *EstimationAggregationResult) GetCityEstimate() *ProductEstimate{
 	cityEstimate := &ProductEstimate{
-		Etype: _const.CITY,
+		Etype: CITY,
 	}
-	cityBucket, _ := e.Result.Aggregations.Terms(_const.CITYLABEL)
+	cityBucket, _ := e.Result.Aggregations.Terms(CITYLABEL)
 	cityEstimate.transformFromTermsBucket(cityBucket)
 	return cityEstimate
 }
 func (e *EstimationAggregationResult) GetMetroEstimate() *ProductEstimate{
 	metroEstimate := &ProductEstimate{
-		Etype: _const.METRO,
+		Etype: METRO,
 	}
-	metroBucket, _ := e.Result.Aggregations.Terms(_const.METROLABEL)
+	metroBucket, _ := e.Result.Aggregations.Terms(METROLABEL)
 	metroEstimate.transformFromTermsBucket(metroBucket)
 	return metroEstimate
 }
 func (e *EstimationAggregationResult) GetZipEstimate() *ProductEstimate{
 	zipEstimate := &ProductEstimate{
-		Etype: "ZIP",
+		Etype: ZIP,
 	}
-	zipBucket, _ := e.Result.Aggregations.Terms(_const.ZIPLABEL)
+	zipBucket, _ := e.Result.Aggregations.Terms(ZIPLABEL)
 	zipEstimate.transformFromTermsBucket(zipBucket)
 	return zipEstimate
 }
 
-func (e *EstimationAggregationResult) GetRangeEstimate(key _const.EstimateType) (*ProductEstimate){
-	i, _ := e.Result.Aggregations.GeoDistance(_const.GEOGRAPHICLABEL)
+func (e *EstimationAggregationResult) GetRangeEstimate(key EstimateType) (*ProductEstimate){
+	i, _ := e.Result.Aggregations.GeoDistance(GEOGRAPHICLABEL)
 	for _, k := range i.Buckets {
 		if k.Key == key.String() {
-			max, _ := k.Aggregations.Max(_const.MAXLABEL)
-			min, _ := k.Aggregations.Min(_const.MINLABEL)
+			max, _ := k.Aggregations.Max(MAXLABEL)
+			min, _ := k.Aggregations.Min(MINLABEL)
 			return &ProductEstimate{
 				Etype: key,
 				Min:   min.Value, Max:   max.Value}
@@ -128,25 +128,66 @@ func (e *EstimationAggregationResult) GetRangeEstimate(key _const.EstimateType) 
 
 
 
-type EstimationAggregationResultIterator struct{
+type EstimationAggregationResults struct{
 	Current int
 	Result *elastic.AggregationBucketKeyItems
 }
-func (e *EstimationAggregationResultIterator) Value() *EstimationAggregationResult{
+func (e *EstimationAggregationResults) Value() *EstimationAggregationResult{
 	result := &EstimationAggregationResult{
 		Result: e.Result.Buckets[e.Current],
 	}
-	e.Current++
 	return result
 }
-func (e *EstimationAggregationResultIterator) Next() bool{
-
+func (e *EstimationAggregationResults) Next() bool{
+	e.Current++
 	 return e.Current < len(e.Result.Buckets)
 }
 
-func NewEstimationAggregationResultIterator(r *elastic.AggregationBucketKeyItems) *EstimationAggregationResultIterator{
-	return &EstimationAggregationResultIterator{
-		Current: 0,
+func NewEstimationAggregationResults(r *elastic.AggregationBucketKeyItems) *EstimationAggregationResults {
+	return &EstimationAggregationResults{
+		Current: -1,
 		Result: r,
 	}
 }
+
+func GeneratePriceAggregation(field string, include string) *elastic.TermsAggregation {
+	return elastic.
+		NewTermsAggregation().
+		Field(field).
+		Include(include).
+		SubAggregation(MINFINALPRICELABEL, elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)).
+		SubAggregation(MAXFINALPRICELABEL, elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)).
+		SubAggregation(MINLISTLABEL, elastic.NewMinAggregation().Field(_const.LISTPRICEFIELD)).
+		SubAggregation(MAXLISTLABEL, elastic.NewMaxAggregation().Field(_const.LISTPRICEFIELD))
+}
+
+
+type EstimateType string
+
+func(e *EstimateType) String() string{
+	return string(*e)
+}
+
+const (
+	ZIP           EstimateType = "ZIP"
+	CITY          EstimateType = "CITY"
+	METRO         EstimateType = "METRO"
+	FIFTYMILES    EstimateType = "FIFTYMILE"
+	HUNDREDMILES  EstimateType = "HUNDREDMILES"
+	NATIONALMILES EstimateType = "NATIONALMILES"
+)
+
+
+const (
+	ZIPLABEL           string = "zipcode-estimate"
+	CITYLABEL          string = "city-estimate"
+	METROLABEL         string = "metro-estimate"
+	GEOGRAPHICLABEL    string = "geographic-range-estimates"
+	CHAINLABEL         string = "chain-groups"
+	MAXLABEL           string = "maxprice"
+	MINLABEL           string = "minprice"
+	MAXFINALPRICELABEL string = "maxfinal"
+	MINFINALPRICELABEL string = "minfinal"
+	MAXLISTLABEL       string = "maxlist"
+	MINLISTLABEL       string = "minlist"
+)

@@ -34,7 +34,7 @@ func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFi
 	searchQuery := svc.elasticClient.
 		Search(_const.PROUCTPRICEINDEX).
 		Query(query.GetQuery()).
-		Aggregation(_const.CHAINLABEL, agg.GetAggregation())
+		Aggregation(CHAINLABEL, agg.GetAggregation())
 
 	searchResult, err := searchQuery.Do(ctx)
 
@@ -42,20 +42,20 @@ func (svc *productServiceImpl) GetEstimatedProductPrices(filter EstimatedPriceFi
 		return nil, errors.ServerError(err)
 	}
 
-	groups, _ := searchResult.Aggregations.Terms(_const.CHAINLABEL)
+	groups, _ := searchResult.Aggregations.Terms(CHAINLABEL)
 
-	chainGroups := NewEstimationAggregationResultIterator(groups)
+	chainGroups := NewEstimationAggregationResults(groups)
 	responses := make(EstimatedPriceResponse)
 	for chainGroups.Next(){
 		estimates := make(EstimatedPriceItem)
 		chainGroup := chainGroups.Value()
 		chainId := ChainId(chainGroup.Result.KeyNumber)
-		estimates[_const.CITY] = chainGroup.GetCityEstimate()
-		estimates[_const.METRO] = chainGroup.GetMetroEstimate()
-		estimates[_const.ZIP] = chainGroup.GetZipEstimate()
-		estimates[_const.FIFTYMILES] = chainGroup.GetRangeEstimate(_const.FIFTYMILES)
-		estimates[_const.HUNDREDMILES] = chainGroup.GetRangeEstimate(_const.HUNDREDMILES)
-		estimates[_const.NATIONALMILES] = chainGroup.GetRangeEstimate(_const.NATIONALMILES)
+		estimates[CITY] = chainGroup.GetCityEstimate()
+		estimates[METRO] = chainGroup.GetMetroEstimate()
+		estimates[ZIP] = chainGroup.GetZipEstimate()
+		estimates[FIFTYMILES] = chainGroup.GetRangeEstimate(FIFTYMILES)
+		estimates[HUNDREDMILES] = chainGroup.GetRangeEstimate(HUNDREDMILES)
+		estimates[NATIONALMILES] = chainGroup.GetRangeEstimate(NATIONALMILES)
 		responses[chainId] = estimates
 	}
 	return responses, nil
@@ -277,47 +277,25 @@ func (svc *productServiceImpl) GetLiveProductPrices(filter LivePriceFilter) ([]P
 }
 
 type ProductEstimate struct {
-	Etype _const.EstimateType `json:"Etype"`
+	Etype EstimateType `json:"Etype"`
 	Min   *float64            `json:"Min"`
 	Max   *float64            `json:"Max"`
 }
 
 func (e *ProductEstimate) transformFromTermsBucket(bucket *elastic.AggregationBucketKeyItems) {
 	if len(bucket.Buckets) == 1 {
-		max, ok := bucket.Buckets[0].Aggregations.Max(_const.MAXFINALPRICELABEL)
+		max, ok := bucket.Buckets[0].Aggregations.Max(MAXFINALPRICELABEL)
 		if ok {
 			e.Max = max.Value
 		}
-		min, ok := bucket.Buckets[0].Aggregations.Min(_const.MINFINALPRICELABEL)
+		min, ok := bucket.Buckets[0].Aggregations.Min(MINFINALPRICELABEL)
 		if ok {
 			e.Min = min.Value
 		}
 	}
 }
 
-type EstimateTermsAgg struct {
-	fieldName    string
-	inclusionVal string
-}
-
-func (a *EstimateTermsAgg) Generate() *elastic.TermsAggregation {
-	return elastic.
-		NewTermsAggregation().
-		Field(a.fieldName).
-		Include(a.inclusionVal).
-		SubAggregation(_const.MINFINALPRICELABEL, elastic.NewMinAggregation().Field(_const.FINALPRICEFIELD)).
-		SubAggregation(_const.MAXFINALPRICELABEL, elastic.NewMaxAggregation().Field(_const.FINALPRICEFIELD)).
-		SubAggregation(_const.MINLISTLABEL, elastic.NewMinAggregation().Field(_const.LISTPRICEFIELD)).
-		SubAggregation(_const.MAXLISTLABEL, elastic.NewMaxAggregation().Field(_const.LISTPRICEFIELD))
-}
-
-func NewEstimateTermsAgg(fieldName string, inclusionVal string) *EstimateTermsAgg {
-	return &EstimateTermsAgg{
-		fieldName:    fieldName,
-		inclusionVal: inclusionVal,
-	}
-}
 
 type ChainId json.Number
-type EstimatedPriceItem map[_const.EstimateType]*ProductEstimate
+type EstimatedPriceItem map[EstimateType]*ProductEstimate
 type EstimatedPriceResponse map[ChainId]EstimatedPriceItem
